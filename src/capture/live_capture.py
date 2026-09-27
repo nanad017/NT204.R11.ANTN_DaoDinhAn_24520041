@@ -1,24 +1,37 @@
+import logging
+
 from scapy.error import Scapy_Exception
 from scapy.sendrecv import sniff
-import logging
-from src.capture.common import Process_Packet
+
+from src.capture.common import CaptureStats, build_packet_callback
 
 logger = logging.getLogger(__name__)
 
-def capture_live(interface,packet_handler):
-    print(f"Starting live capture on {interface}\n")
+
+def capture_live(
+    interface,
+    packet_handler=None,
+):
+    stats = CaptureStats()
+    if not interface or not interface.strip():
+        stats.error = "Network interface is required"
+        return stats
+
+    callback = build_packet_callback(packet_handler, stats)
     logger.info("Starting live capture on interface: %s", interface)
     try:
-        sniff(iface=interface,store=False,prn = Process_Packet())
+        sniff(iface=interface, prn=callback, store=False)
     except KeyboardInterrupt:
-        print("Live capture stopped by user.")
-        logger.info("Live capture stopped by user.")
+        logger.info("Live capture stopped by user on interface: %s", interface)
     except (OSError, Scapy_Exception) as exc:
-        print(f"Could not capture from interface '{interface}': {exc}")
-        logger.error(
-            "Could not capture from interface '%s': %s",
-            interface,
-            exc,
-        )
+        stats.error = f"Could not capture from interface '{interface}': {exc}"
+        logger.error("%s", stats.error)
     finally:
-        print("Live capture complete:")
+        logger.info(
+            "Live capture complete on %s: packets=%s handler_errors=%s",
+            interface,
+            stats.packets_seen,
+            stats.handler_errors,
+        )
+
+    return stats
