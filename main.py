@@ -1,57 +1,59 @@
 import argparse
-import os
-import logging
 from pathlib import Path
 
 from src.capture.live_capture import capture_live
 from src.capture.pcap_reader import read_pcap
+from src.logger import prepare_output, write_event, configure_logging
+from src.pipeline import build_pipeline_handler
 
-Path("logs").mkdir(exist_ok=True)
-
-logging.basicConfig(
-    filename="logs/app.log",
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
-)
-
-logger = logging.getLogger(__name__)
 
 def build_parser():
-    parser = argparse.ArgumentParser(
-        description="Packet Capture & Parser for IDS"
+    parser = argparse.ArgumentParser(description="Packet Capture & Parser for IDS")
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--interface", help="Network interface for live capture")
+    source.add_argument("--pcap", help="Path to a PCAP file")
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("output/events.jsonl"),
+        help="JSON Lines output path",
     )
-
-    group = parser.add_mutually_exclusive_group(required=True)
-
-    group.add_argument(
-        "--interface",
-        type=str,
-        help="Network interface for live packet capture"
+    parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Overwrite the output file instead of appending to it",
     )
-
-    group.add_argument(
-        "--pcap",
-        type=str,
-        help="Path to PCAP file"
-    )
-
     return parser
 
+def main(argv=None):
+    args = build_parser().parse_args(argv)
+    try:
+        configure_logging()
+        output_file = prepare_output(args.output, truncate=args.overwrite)
+    except OSError as exc:
+        print(f"[ERROR] Could not prepare output: {exc}")
+        return 2
 
-def main():
-    parser = build_parser()
-    args = parser.parse_args()
-
+    source = "live" if args.interface else "pcap"
+    pipeline_handler = build_pipeline_handler(
+        source,
+        lambda event: write_event(event, output_file),
+    )
     if args.interface:
-        capture_live(args.interface)
+        stats = capture_live(args.interface, packet_handler=pipeline_handler)
+    else:
+        stats = read_pcap(args.pcap, packet_handler=pipeline_handler)
 
-    elif args.pcap:
-        if not os.path.isfile(args.pcap):
-            print(f"[ERROR] PCAP file not found: {args.pcap}")
-            return
+    if stats.error:
+        print(f"[ERROR] {stats.error}")
+        return 1
 
-        read_pcap(args.pcap)
+    print(
+        "Capture complete: "
+        f"packets={stats.packets_seen}, handler_errors={stats.handler_errors}"
+    )
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
