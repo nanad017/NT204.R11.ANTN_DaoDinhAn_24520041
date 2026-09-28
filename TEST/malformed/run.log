@@ -1,0 +1,4 @@
+2026-09-28 16:49:55,810 [INFO] src.capture.pcap_reader: Reading PCAP file: TEST/malformed/input.pcap
+2026-09-28 16:49:55,810 [ERROR] src.capture.pcap_reader: Could not read PCAP file: Not a supported capture file
+2026-09-28 16:49:55,810 [INFO] src.capture.pcap_reader: PCAP read complete for TEST/malformed/input.pcap: packets=0 handler_errors=0
+[ERROR] Could not read PCAP file: Not a supported capture file
