@@ -1,0 +1,3 @@
+2026-09-28 16:49:53,971 [INFO] src.capture.pcap_reader: Reading PCAP file: TEST/dns_query/input.pcap
+2026-09-28 16:49:53,992 [INFO] src.capture.pcap_reader: PCAP read complete for TEST/dns_query/input.pcap: packets=38 handler_errors=0
+Capture complete: packets=38, handler_errors=0
