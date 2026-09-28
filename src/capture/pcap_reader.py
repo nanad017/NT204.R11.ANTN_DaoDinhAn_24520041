@@ -1,46 +1,48 @@
-from pathlib import Path
 import logging
+from pathlib import Path
 
 from scapy.error import Scapy_Exception
 from scapy.sendrecv import sniff
 
-from src.capture.common import process_packet
-
+from src.capture.common import CaptureStats, build_packet_callback
 
 logger = logging.getLogger(__name__)
 
 
-def read_pcap(pcap_path):
+def read_pcap(
+    pcap_path,
+    packet_handler=None,
+):
+    stats = CaptureStats()
     path = Path(pcap_path)
 
-    if not path.is_file():
-        print(f"[ERROR] PCAP file not found: {path}")
-        logger.error("PCAP file not found: %s", path)
-        return
-
-    if path.stat().st_size == 0:
-        print(f"[ERROR] PCAP file is empty: {path}")
-        logger.error("PCAP file is empty: %s", path)
-        return
-
-    print(f"[INFO] Reading PCAP file: {path}")
-    logger.info("Reading PCAP file: %s", path)
-
     try:
-        sniff(
-            offline=str(path),
-            prn=process_packet,
-            store=False,
-        )
+        if not path.is_file():
+            stats.error = "PCAP file not found"
+            logger.error("%s: %s", stats.error, path)
+            return stats
+        if path.stat().st_size == 0:
+            stats.error = "PCAP file is empty"
+            logger.error("%s: %s", stats.error, path)
+            return stats
+    except OSError as exc:
+        stats.error = f"Could not access PCAP file: {exc}"
+        logger.error("%s", stats.error)
+        return stats
 
+    callback = build_packet_callback(packet_handler, stats)
+    logger.info("Reading PCAP file: %s", path)
+    try:
+        sniff(offline=str(path), prn=callback, store=False)
     except (OSError, Scapy_Exception) as exc:
-        print(f"[ERROR] Could not read PCAP file '{path}': {exc}")
-        logger.error(
-            "Could not read PCAP file '%s': %s",
+        stats.error = f"Could not read PCAP file: {exc}"
+        logger.error("%s", stats.error)
+    finally:
+        logger.info(
+            "PCAP read complete for %s: packets=%s handler_errors=%s",
             path,
-            exc,
+            stats.packets_seen,
+            stats.handler_errors,
         )
 
-    finally:
-        print(f"[INFO] PCAP read complete: {path}")
-        logger.info("PCAP read complete: %s", path)
+    return stats
