@@ -1,0 +1,3 @@
+2026-09-28 16:49:56,013 [INFO] src.capture.pcap_reader: Reading PCAP file: TEST/udp/input.pcapng
+2026-09-28 16:49:56,085 [INFO] src.capture.pcap_reader: PCAP read complete for TEST/udp/input.pcapng: packets=314 handler_errors=0
+Capture complete: packets=314, handler_errors=0
