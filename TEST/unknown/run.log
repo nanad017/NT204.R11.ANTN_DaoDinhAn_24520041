@@ -1,0 +1,3 @@
+2026-09-28 16:49:55,610 [INFO] src.capture.pcap_reader: Reading PCAP file: TEST/unknown/input.pcap
+2026-09-28 16:49:55,611 [INFO] src.capture.pcap_reader: PCAP read complete for TEST/unknown/input.pcap: packets=1 handler_errors=0
+Capture complete: packets=1, handler_errors=0
