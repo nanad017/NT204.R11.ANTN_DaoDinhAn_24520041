@@ -1,49 +1,43 @@
-# src/models.py
-
-from __future__ import annotations
-
 from dataclasses import asdict, dataclass, field
-from typing import Any, Optional
-
 @dataclass
 class EtherInfo:
-    src_mac: Optional[str] = None
-    dest_mac: Optional[str] = None
+    src_mac: str | None = None
+    dest_mac: str | None = None
 
 @dataclass
 class IPv4Info:
     version: int = 4
 
-    header_length: Optional[int] = None
-    total_length: Optional[int] = None
+    header_length: int | None = None
+    total_length: int | None = None
 
-    identification: Optional[int] = None
+    identification: int | None = None
 
     flags: list[str] = field(default_factory=list)
-    fragment_offset: Optional[int] = None
+    fragment_offset: int | None = None
 
-    ttl: Optional[int] = None
-    checksum: Optional[int] = None
+    ttl: int | None = None
+    checksum: int | None = None
 
 @dataclass
 class TCPInfo:
-    seq: Optional[int] = None
-    ack: Optional[int] = None
+    seq: int | None = None
+    ack: int | None = None
 
-    header_length: Optional[int] = None
+    header_length: int | None = None
 
     flags: list[str] = field(default_factory=list)
 
-    window: Optional[int] = None
-    checksum: Optional[int] = None
+    window: int | None = None
+    checksum: int | None = None
 
     payload_length: int = 0
 
 
 @dataclass
 class UDPInfo:
-    length: Optional[int] = None
-    checksum: Optional[int] = None
+    length: int | None = None
+    checksum: int | None = None
 
     payload_length: int = 0
 
@@ -52,40 +46,46 @@ class UDPInfo:
 class HTTPHeader:
     name: str
     value: str
+    original_name: str | None = None
 
 
 @dataclass
 class HTTPInfo:
-    # Basic fields
-    hostname: Optional[str] = None
-    http_port: Optional[int] = None
+    hostname: str | None = None
+    http_port: int | None = None
 
-    url: Optional[str] = None
+    url: str | None = None
 
-    http_user_agent: Optional[str] = None
-    http_content_type: Optional[str] = None
+    raw_url: str | None = None
+    decoded_url: str | None = None
+    decoded_path: str | None = None
+    decoded_query: str | None = None
+    normalized_url: str | None = None
+    raw_form_data: str | None = None
+    decoded_form: dict[str, object] = field(default_factory=dict)
 
-    cookie: Optional[str] = None
+    http_user_agent: str | None = None
+    http_content_type: str | None = None
 
-    # Extended fields
-    length: Optional[int] = None
+    cookie: str | None = None
 
-    status: Optional[int] = None
+    length: int | None = None
 
-    # HTTP/1.0, HTTP/1.1
-    protocol: Optional[str] = None
+    status: int | None = None
 
-    # GET, POST, HEAD, ...
-    http_method: Optional[str] = None
+    protocol: str | None = None
 
-    http_refer: Optional[str] = None
+    http_method: str | None = None
 
-    # Optional full header dump
+    http_refer: str | None = None
+
     request_headers: list[HTTPHeader] = field(default_factory=list)
     response_headers: list[HTTPHeader] = field(default_factory=list)
 
-    # Useful for assignment HTTP POST test
-    body: Optional[str] = None
+    body: str | None = None
+    raw_body: str | None = None
+    decoded_body: str | None = None
+    html_decoded_body: str | None = None
 
 @dataclass
 class DNSQuery:
@@ -98,33 +98,28 @@ class DNSRecord:
     rrname: str
     rrtype: str
 
-    ttl: Optional[int] = None
-    rdata: Optional[str] = None
+    ttl: int | None = None
+    rdata: str | None = None
 
 
 @dataclass
 class DNSInfo:
-    # inspired by Suricata DNS logging v3.
     version: int = 3
 
-    # request / answer
-    type: Optional[str] = None
+    type: str | None = None
 
-    # DNS transaction ID
-    id: Optional[int] = None
+    id: int | None = None
 
-    # DNS flags
-    flags: Optional[str] = None
+    flags: str | None = None
 
-    qr: Optional[bool] = None
-    aa: Optional[bool] = None
-    tc: Optional[bool] = None
-    rd: Optional[bool] = None
-    ra: Optional[bool] = None
-    z: Optional[bool] = None
+    qr: bool | None = None
+    aa: bool | None = None
+    tc: bool | None = None
+    rd: bool | None = None
+    ra: bool | None = None
+    z: bool | None = None
 
-    # NOERROR, NXDOMAIN, ...
-    rcode: Optional[str] = None
+    rcode: str | None = None
 
     queries: list[DNSQuery] = field(default_factory=list)
 
@@ -132,203 +127,156 @@ class DNSInfo:
     authorities: list[DNSRecord] = field(default_factory=list)
     additionals: list[DNSRecord] = field(default_factory=list)
 
-    # Optional grouped format:
-    #
-    # {
-    #     "A": ["192.0.2.1"],
-    #     "CNAME": ["example.com"]
-    # }
     grouped: dict[str, list[str]] = field(default_factory=dict)
 
 @dataclass
 class SMTPInfo:
-    # Session information
-    helo: Optional[str] = None
+    helo: str | None = None
 
-    mail_from: Optional[str] = None
+    mail_from: str | None = None
     rcpt_to: list[str] = field(default_factory=list)
 
-    # Per-packet command parsing required by assignment.
-    #
-    # Examples:
-    # command = "EHLO"
-    # argument = "mail.example.com"
-    #
-    # command = "MAIL FROM"
-    # argument = "<alice@example.com>"
-    command: Optional[str] = None
-    argument: Optional[str] = None
+    command: str | None = None
+    argument: str | None = None
 
-    # SMTP server response
-    #
-    # 250 OK
-    # 220 Service ready
-    status_code: Optional[int] = None
-    response: Optional[str] = None
+    status_code: int | None = None
+    response: str | None = None
 
 @dataclass
 class EmailInfo:
-    status: Optional[str] = None
+    status: str | None = None
 
-    from_address: Optional[str] = None
+    from_address: str | None = None
     to: list[str] = field(default_factory=list)
 
-    subject: Optional[str] = None
-    date: Optional[str] = None
+    subject: str | None = None
+    date: str | None = None
 
-    message_id: Optional[str] = None
-    x_mailer: Optional[str] = None
+    message_id: str | None = None
+    x_mailer: str | None = None
 
     attachment: list[str] = field(default_factory=list)
 
-    body_md5: Optional[str] = None
+    body_md5: str | None = None
+
+    raw_body: str | None = None
+    decoded_body: str | None = None
+    decoded_size: int | None = None
+    decode_status: str | None = None
+    content_transfer_encoding: str | None = None
+    charset: str | None = None
+
+
+@dataclass
+class DecoderInfo:
+    status: str = "not_applicable"
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+
+
+@dataclass
+class PreprocessInfo:
+    status: str = "valid"
+    processing_action: str = "retain"
+    reason: str | None = None
+    original_values: dict[str, object] = field(default_factory=dict)
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+
+
+@dataclass
+class EndpointInfo:
+    ip: str
+    port: int | None = None
+
+
+@dataclass
+class FlowInfo:
+    flow_id: int
+    protocol: str
+    application_protocol: str | None = None
+    endpoint_a: EndpointInfo | None = None
+    endpoint_b: EndpointInfo | None = None
+    start_time: str | None = None
+    last_seen: str | None = None
+    duration: float = 0.0
+    packet_count: int = 0
+    byte_count: int = 0
+    forward_packet_count: int = 0
+    forward_byte_count: int = 0
+    backward_packet_count: int = 0
+    backward_byte_count: int = 0
+    syn_count: int = 0
+    ack_count: int = 0
+    fin_count: int = 0
+    rst_count: int = 0
+    state: str | None = None
 
 
 @dataclass
 class ParserInfo:
-    """
-    Parser state.
-
-    status:
-        success -> parsed normally
-        partial -> some data parsed, but errors occurred
-        unknown -> unsupported/unrecognized protocol
-        error   -> parsing failed, but processing continues
-    """
-
     status: str = "success"
 
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
 
 
-# ============================================================
-# Base Event
-#
-# Common fields shared by current and future IDS event types.
-# ============================================================
-
 @dataclass
 class BaseEvent:
     timestamp: str
 
-    # Generic event type.
-    # PacketEvent overrides this with "packet".
     event_type: str = "event"
 
-    # --------------------------------------------------------
-    # Future flow support
-    # --------------------------------------------------------
+    flow_id: int | None = None
 
-    # Remains None until a Flow Engine exists.
-    flow_id: Optional[int] = None
+    pcap_cnt: int | None = None
 
-    # --------------------------------------------------------
-    # Capture metadata
-    # --------------------------------------------------------
+    pkt_src: str | None = None
 
-    # Packet number inside the capture/input stream.
-    pcap_cnt: Optional[int] = None
+    src_ip: str | None = None
+    src_port: int | None = None
 
-    # Examples:
-    # "live"
-    # "pcap"
-    # "wire/pcap"
-    pkt_src: Optional[str] = None
+    dest_ip: str | None = None
+    dest_port: int | None = None
 
-    # --------------------------------------------------------
-    # Common network tuple
-    # --------------------------------------------------------
+    packet_length: int | None = None
 
-    src_ip: Optional[str] = None
-    src_port: Optional[int] = None
+    proto: str | None = None
 
-    dest_ip: Optional[str] = None
-    dest_port: Optional[int] = None
-
-    # TCP / UDP
-    proto: Optional[str] = None
-
-    # http / dns / smtp / unknown
-    app_proto: Optional[str] = None
-
-    # --------------------------------------------------------
-    # Parser state
-    # --------------------------------------------------------
+    app_proto: str | None = None
 
     parser: ParserInfo = field(default_factory=ParserInfo)
 
-    # --------------------------------------------------------
-    # Serialization
-    # --------------------------------------------------------
+    decoder: DecoderInfo | None = None
+    preprocess: PreprocessInfo | None = None
+    flow_direction: str | None = None
+    flow: FlowInfo | None = None
 
-    def to_dict(self) -> dict[str, Any]:
-        """
-        Convert the event and all nested dataclasses into
-        a JSON-compatible dictionary.
-
-        None values and empty containers are omitted.
-        """
+    def to_dict(self) -> dict[str, object]:
         return _clean(asdict(self))
 
-
-# ============================================================
-# Packet Event
-# ============================================================
 
 @dataclass
 class PacketEvent(BaseEvent):
     event_type: str = "packet"
 
-    # --------------------------------------------------------
-    # Layer 2
-    # --------------------------------------------------------
+    ether: EtherInfo | None = None
 
-    ether: Optional[EtherInfo] = None
+    ip: IPv4Info | None = None
 
-    # --------------------------------------------------------
-    # Layer 3
-    # --------------------------------------------------------
+    tcp: TCPInfo | None = None
+    udp: UDPInfo | None = None
 
-    ip: Optional[IPv4Info] = None
+    http: HTTPInfo | None = None
+    dns: DNSInfo | None = None
+    smtp: SMTPInfo | None = None
 
-    # --------------------------------------------------------
-    # Layer 4
-    # --------------------------------------------------------
-
-    tcp: Optional[TCPInfo] = None
-    udp: Optional[UDPInfo] = None
-
-    # --------------------------------------------------------
-    # Application Layer
-    # --------------------------------------------------------
-
-    http: Optional[HTTPInfo] = None
-    dns: Optional[DNSInfo] = None
-    smtp: Optional[SMTPInfo] = None
-
-    # Future / optional extension
-    email: Optional[EmailInfo] = None
+    email: EmailInfo | None = None
 
 
-def _clean(value: Any) -> Any:
-    """
-    Recursively clean the dictionary generated by dataclasses.
-
-    Removes:
-        - None
-        - empty dictionaries
-        - empty lists
-
-    Keeps:
-        - 0
-        - False
-        - non-empty strings
-        - populated lists/dicts
-    """
-
+def _clean(value: object) -> object:
     if isinstance(value, dict):
-        result: dict[str, Any] = {}
+        result: dict[str, object] = {}
 
         for key, item in value.items():
             cleaned_item = _clean(item)
