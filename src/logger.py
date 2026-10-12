@@ -1,6 +1,9 @@
 import json
 import logging
+from dataclasses import asdict
 from pathlib import Path
+
+from src.schema import FlowInfo, _clean
 
 logger = logging.getLogger(__name__)
 
@@ -32,4 +35,17 @@ def write_event(event, output_file):
             output.write("\n")
     except OSError:
         logger.exception("Could not write event to %s", path)
+        raise
+
+
+def write_flow(flow: FlowInfo, output_file):
+    path = Path(output_file)
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        serialized = json.dumps(_clean(asdict(flow)), ensure_ascii=False)
+        with path.open("a", encoding="utf-8") as output:
+            output.write(serialized)
+            output.write("\n")
+    except OSError:
+        logger.exception("Could not write flow to %s", path)
         raise
