@@ -197,6 +197,9 @@ class FlowInfo:
     application_protocol: str | None = None
     endpoint_a: EndpointInfo | None = None
     endpoint_b: EndpointInfo | None = None
+    client_endpoint: EndpointInfo | None = None
+    server_endpoint: EndpointInfo | None = None
+    initiator_direction: str | None = None
     start_time: str | None = None
     last_seen: str | None = None
     duration: float = 0.0
@@ -211,6 +214,7 @@ class FlowInfo:
     fin_count: int = 0
     rst_count: int = 0
     state: str | None = None
+    established: bool = False
 
 
 @dataclass
@@ -250,6 +254,7 @@ class BaseEvent:
     decoder: DecoderInfo | None = None
     preprocess: PreprocessInfo | None = None
     flow_direction: str | None = None
+    flow_role: str | None = None
     flow: FlowInfo | None = None
 
     def to_dict(self) -> dict[str, object]:

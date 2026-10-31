@@ -39,18 +39,24 @@ class Flow:
     rst_count: int = 0
     state: str = TCPState.NEW
     initiator_direction: str | None = None
+    client_direction: str = "forward"
+    established: bool = False
     syn_directions: set[str] = field(default_factory=set)
     syn_ack_directions: set[str] = field(default_factory=set)
     fin_directions: set[str] = field(default_factory=set)
 
     def snapshot(self) -> FlowInfo:
         duration = max(0.0, (self.last_seen - self.start_time).total_seconds())
+        client_endpoint, server_endpoint = self.client_server_endpoints()
         return FlowInfo(
             flow_id=self.flow_id,
             protocol=self.protocol,
             application_protocol=self.application_protocol,
             endpoint_a=EndpointInfo(*self.endpoint_a),
             endpoint_b=EndpointInfo(*self.endpoint_b),
+            client_endpoint=EndpointInfo(*client_endpoint),
+            server_endpoint=EndpointInfo(*server_endpoint),
+            initiator_direction=self.initiator_direction,
             start_time=self.start_time.isoformat(),
             last_seen=self.last_seen.isoformat(),
             duration=duration,
@@ -65,7 +71,16 @@ class Flow:
             fin_count=self.fin_count,
             rst_count=self.rst_count,
             state=self.state,
+            established=self.established,
         )
+
+    def client_server_endpoints(self) -> tuple[Endpoint, Endpoint]:
+        if self.client_direction == "backward":
+            return self.endpoint_b, self.endpoint_a
+        return self.endpoint_a, self.endpoint_b
+
+    def packet_role(self, direction: str) -> str:
+        return "to_server" if direction == self.client_direction else "to_client"
 
 
 class FlowTracker:
@@ -120,6 +135,7 @@ class FlowTracker:
         event.flow_id = flow.flow_id
         event.flow_direction = direction
         self._update(flow, event, direction, seen)
+        event.flow_role = flow.packet_role(direction)
         snapshot = flow.snapshot()
         event.flow = snapshot
 
@@ -176,10 +192,13 @@ class FlowTracker:
             flow.syn_count += 1
             if "ACK" in flags:
                 flow.syn_ack_directions.add(direction)
+                if flow.initiator_direction is None:
+                    flow.client_direction = _opposite_direction(direction)
             else:
                 flow.syn_directions.add(direction)
                 if flow.initiator_direction is None:
                     flow.initiator_direction = direction
+                flow.client_direction = flow.initiator_direction
         if "ACK" in flags:
             flow.ack_count += 1
         if "FIN" in flags:
@@ -206,6 +225,7 @@ class FlowTracker:
             )
             if handshake_complete:
                 flow.state = TCPState.ESTABLISHED
+                flow.established = True
 
     def _enforce_capacity(self, now: datetime) -> None:
         self.expire(now=now)
@@ -267,3 +287,7 @@ def _flag_set(flags) -> set[str]:
             return {aliases[flags]}
         return {aliases[flag] for flag in flags if flag in aliases}
     return set(flags or [])
+
+
+def _opposite_direction(direction: str) -> str:
+    return "backward" if direction == "forward" else "forward"
