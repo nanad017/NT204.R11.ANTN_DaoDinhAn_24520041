@@ -1,0 +1,1 @@
+python TEST/BT3/run_case.py T10

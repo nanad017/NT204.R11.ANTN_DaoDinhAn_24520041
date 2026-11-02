@@ -1,0 +1,2 @@
+alert tcp any any -> any 80 (msg:"T10 match"; content:"needle"; offset:2; depth:6; sid:4000001; rev:1;)
+alert tcp any any -> any 80 (msg:"T10 wrong offset"; content:"needle"; offset:3; depth:6; sid:4000002; rev:1;)
