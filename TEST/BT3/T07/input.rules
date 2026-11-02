@@ -1,0 +1,1 @@
+alert tcp 203.0.113.10 any -> any 80 (msg:"T07 header first"; content:"SECRET"; sid:3700001; rev:1;)
