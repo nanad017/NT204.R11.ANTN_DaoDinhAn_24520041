@@ -1,0 +1,12 @@
+{
+  "active_sids": [
+    3200002
+  ],
+  "continued_after_error": true,
+  "diagnostic_count": 5,
+  "diagnostic_kinds": [
+    "invalid"
+  ],
+  "invalid_count": 1,
+  "valid_count": 1
+}

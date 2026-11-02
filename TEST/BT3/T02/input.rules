@@ -1,0 +1,2 @@
+alert tcp 999.1.1.1 any -> any 80 (msg:"T02 invalid"; sid:3200001; rev:1;)
+alert tcp any any -> any 80 (msg:"T02 valid after invalid"; sid:3200002; rev:1;)
