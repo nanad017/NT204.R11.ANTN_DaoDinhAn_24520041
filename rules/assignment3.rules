@@ -1,0 +1,7 @@
+# Sample rules for Assignment 3 Core Engine demonstrations.
+
+alert tcp any any -> any 80 (msg:"HTTP GET request detected"; flow:to_server,established; content:"GET "; flags:PA; classtype:web-application-activity; priority:3; sid:3000001; rev:1;)
+
+alert tcp any any -> any 80 (msg:"HTTP download path detected"; content:"/download.html"; nocase; classtype:web-application-activity; priority:2; sid:3000002; rev:1;)
+
+alert udp any any -> any 53 (msg:"DNS query payload detected"; flow:to_server; dsize:>0; classtype:protocol-command-decode; priority:3; sid:3000003; rev:1;)

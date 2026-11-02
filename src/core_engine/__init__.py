@@ -1,5 +1,44 @@
 """Data models and components for the IDS Core Engine."""
 
+from src.core_engine.detection import (
+    DetectionEventGenerationError,
+    DetectionEventGenerator,
+    detection_event_to_json,
+    generate_detection_events,
+)
+from src.core_engine.evaluator import (
+    EvaluationEngine,
+    EvaluationMatcherProtocol,
+    EvaluationRepositoryProtocol,
+    EvaluationResult,
+    InspectionBuilderProtocol,
+    RuleEvaluation,
+    RuleEvaluationEngine,
+    RuleEvaluationError,
+    evaluate_event,
+)
+from src.core_engine.loader import (
+    RuleLoadDiagnostic,
+    RuleLoader,
+    RuleLoaderConfig,
+    RuleLoadResult,
+    RuleParserProtocol,
+)
+from src.core_engine.inspection import (
+    InspectionBuffer,
+    InspectionContext,
+    InspectionContextBuilder,
+    build_inspection_context,
+)
+from src.core_engine.matcher import (
+    ContentMatcher,
+    FlowMatcher,
+    HeaderMatcher,
+    MatchingEngine,
+    PacketMatcher,
+    RuleMatcher,
+    match_rule,
+)
 from src.core_engine.models import (
     ContentOption,
     DetectionEvent,
@@ -18,22 +57,73 @@ from src.core_engine.models import (
     RuleOption,
     RuleStatus,
 )
+from src.core_engine.parser import RuleParser, RuleSyntaxError, SnortRuleParser, parse_rule
+from src.core_engine.repository import (
+    CandidateEventProtocol,
+    RepositoryStatistics,
+    RepositoryUpdateResult,
+    RuleIndexer,
+    RuleRepository,
+)
+from src.core_engine.runtime import CoreEngineRuntime, CoreInspectionResult
+from src.core_engine.validator import RuleValidator
 
 __all__ = [
     "ContentOption",
+    "CoreEngineRuntime",
+    "CoreInspectionResult",
     "DetectionEvent",
+    "DetectionEventGenerationError",
+    "DetectionEventGenerator",
     "DiagnosticKind",
     "DsizeOperator",
     "DsizeOption",
+    "EvaluationEngine",
+    "EvaluationMatcherProtocol",
+    "EvaluationRepositoryProtocol",
+    "EvaluationResult",
     "EvaluationStatistics",
     "IPAddressSpec",
     "InternalRule",
+    "InspectionBuffer",
+    "InspectionContext",
+    "InspectionContextBuilder",
+    "InspectionBuilderProtocol",
     "MatchInformation",
     "MatchStatus",
+    "MatchingEngine",
     "PortSpec",
+    "CandidateEventProtocol",
+    "RepositoryStatistics",
+    "RepositoryUpdateResult",
+    "RuleLoadDiagnostic",
+    "RuleLoader",
+    "RuleLoaderConfig",
+    "RuleLoadResult",
     "RuleDiagnostic",
     "RuleHeader",
+    "RuleIndexer",
+    "RuleEvaluation",
+    "RuleEvaluationEngine",
+    "RuleEvaluationError",
+    "RuleMatcher",
     "RuleMatch",
     "RuleOption",
+    "RuleParserProtocol",
+    "RuleRepository",
+    "RuleParser",
     "RuleStatus",
+    "RuleSyntaxError",
+    "RuleValidator",
+    "SnortRuleParser",
+    "ContentMatcher",
+    "FlowMatcher",
+    "HeaderMatcher",
+    "PacketMatcher",
+    "build_inspection_context",
+    "detection_event_to_json",
+    "evaluate_event",
+    "generate_detection_events",
+    "match_rule",
+    "parse_rule",
 ]
