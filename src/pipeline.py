@@ -28,6 +28,8 @@ class PacketPipeline:
         preprocessor=None,
         flow_tracker=None,
         flow_handler=None,
+        core_engine=None,
+        detection_handler=None,
     ):
         self.packet_source = packet_source
         self.event_handler = event_handler
@@ -37,6 +39,9 @@ class PacketPipeline:
         self.preprocessor = preprocessor or Preprocessor(self.config)
         self.flow_tracker = flow_tracker or FlowTracker(self.config)
         self.flow_handler = flow_handler
+        self.core_engine = core_engine
+        self.detection_handler = detection_handler
+        self.detections_generated = 0
 
     def __call__(self, packet):
         self.packet_count += 1
@@ -59,7 +64,11 @@ class PacketPipeline:
             event.preprocess.processing_action = self.config.invalid_event_policy
             event.preprocess.reason = f"preprocessor failed: {exc}"
             event.preprocess.errors.append(str(exc))
-        if not event.preprocess or event.preprocess.processing_action != "skip":
+        should_inspect = (
+            not event.preprocess
+            or event.preprocess.processing_action != "skip"
+        )
+        if should_inspect:
             try:
                 self.flow_tracker.process(event)
                 self._emit_completed_flows()
@@ -68,6 +77,13 @@ class PacketPipeline:
                     event.preprocess = PreprocessInfo()
                 event.preprocess.status = "partial"
                 event.preprocess.warnings.append(f"flow tracking failed: {exc}")
+        if (
+            should_inspect
+            and self.core_engine is not None
+            and event.flow_id is not None
+            and event.flow is not None
+        ):
+            self._inspect_event(event)
         if self.event_handler is not None:
             try:
                 self.event_handler(event)
@@ -97,6 +113,39 @@ class PacketPipeline:
             except Exception:
                 logger.exception("Flow handler failed")
 
+    def _inspect_event(self, event):
+        try:
+            result = self.core_engine.inspect(
+                event,
+                payload=getattr(event, "_application_payload", b""),
+            )
+        except Exception as exc:
+            event.parser.errors.append(f"Core engine failed: {exc}")
+            _finalize_status(event)
+            logger.exception("Core engine failed for packet %s", self.packet_count)
+            return
+
+        for error in result.evaluation.errors:
+            logger.warning(
+                "Rule evaluation failed for SID %s: %s",
+                error.sid,
+                error.reason,
+            )
+
+        self.detections_generated += len(result.detections)
+        if self.detection_handler is None:
+            return
+        for detection in result.detections:
+            try:
+                self.detection_handler(detection)
+            except Exception as exc:
+                event.parser.errors.append(f"Detection handler failed: {exc}")
+                _finalize_status(event)
+                logger.exception(
+                    "Detection handler failed for SID %s",
+                    detection.sid,
+                )
+
 
 def build_pipeline_handler(
     packet_source,
@@ -107,6 +156,8 @@ def build_pipeline_handler(
     preprocessor=None,
     flow_tracker=None,
     flow_handler=None,
+    core_engine=None,
+    detection_handler=None,
 ):
     return PacketPipeline(
         packet_source,
@@ -116,6 +167,8 @@ def build_pipeline_handler(
         preprocessor=preprocessor,
         flow_tracker=flow_tracker,
         flow_handler=flow_handler,
+        core_engine=core_engine,
+        detection_handler=detection_handler,
     )
 
 
