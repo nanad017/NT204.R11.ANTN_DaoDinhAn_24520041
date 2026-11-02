@@ -1,0 +1,3 @@
+python TEST/BT3/generate_fixtures.py
+python main.py --pcap TEST/BT3/T14/input.pcap --output TEST/BT3/T14/events.jsonl --flow-output TEST/BT3/T14/flows.jsonl --rules TEST/BT3/T14/input.rules --alert-output TEST/BT3/T14/alerts.jsonl --overwrite
+python TEST/BT3/run_case.py T14

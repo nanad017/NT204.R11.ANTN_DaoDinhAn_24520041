@@ -1,0 +1,20 @@
+CLI stdout:
+Capture complete: packets=4, handler_errors=0
+Core Engine complete: rules=2, events=4, candidates=6, matches=2, detections=2
+CLI stderr:
+2026-10-31 16:44:56,076 [INFO] __main__: Rule load complete: files=1 loaded=1 active=2 invalid=0 unsupported=0 disabled=0
+2026-10-31 16:44:56,076 [INFO] src.capture.pcap_reader: Reading PCAP file: /home/nad/UIT/Major/He_thong_tim_kiem_ngan_ngua_xam_nhap/NT204.R11.ANTN_DaoDinhAn_24520041/TEST/BT3/T14/input.pcap
+2026-10-31 16:44:56,078 [INFO] src.capture.pcap_reader: PCAP read complete for /home/nad/UIT/Major/He_thong_tim_kiem_ngan_ngua_xam_nhap/NT204.R11.ANTN_DaoDinhAn_24520041/TEST/BT3/T14/input.pcap: packets=4 handler_errors=0
+{
+  "alert_count": 2,
+  "all_required_fields_present": true,
+  "cli_exit_code": 0,
+  "flow_count": 1,
+  "matched_sids": [
+    4400001,
+    4400002
+  ],
+  "packet_event_count": 4,
+  "same_flow_id": true
+}
+PASS: T14

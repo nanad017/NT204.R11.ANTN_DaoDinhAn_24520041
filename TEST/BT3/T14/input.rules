@@ -1,0 +1,2 @@
+alert tcp any any -> any 8080 (msg:"T14 established USER"; flow:to_server,established; content:"USER"; flags:PA; sid:4400001; rev:1; classtype:attempted-admin; priority:1;)
+alert tcp any any -> any 8080 (msg:"T14 chained content"; content:"USER"; content:"admin"; distance:1; within:8; dsize:12; sid:4400002; rev:1;)

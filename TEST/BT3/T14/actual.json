@@ -1,0 +1,12 @@
+{
+  "alert_count": 2,
+  "all_required_fields_present": true,
+  "cli_exit_code": 0,
+  "flow_count": 1,
+  "matched_sids": [
+    4400001,
+    4400002
+  ],
+  "packet_event_count": 4,
+  "same_flow_id": true
+}
