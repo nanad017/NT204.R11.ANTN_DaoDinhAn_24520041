@@ -1,0 +1,2 @@
+alert tcp any any -> any 80 (msg:"T03 unsupported"; pcre:"/admin/i"; sid:3300001; rev:1;)
+alert tcp any any -> any 80 (msg:"T03 valid after unsupported"; sid:3300002; rev:1;)

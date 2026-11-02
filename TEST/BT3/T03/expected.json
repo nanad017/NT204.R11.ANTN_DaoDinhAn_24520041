@@ -1,0 +1,7 @@
+{
+  "active_sids": [3300002],
+  "continued_after_unsupported": true,
+  "diagnostic_kinds": ["unsupported"],
+  "unsupported_count": 1,
+  "valid_count": 1
+}
