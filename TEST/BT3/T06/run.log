@@ -1,0 +1,12 @@
+{
+  "candidate_sids_tcp_80": [
+    3600001,
+    3600002
+  ],
+  "candidate_sids_udp_53": [
+    3600003
+  ],
+  "duplicates_returned": false,
+  "rules_indexed": 4
+}
+PASS: T06

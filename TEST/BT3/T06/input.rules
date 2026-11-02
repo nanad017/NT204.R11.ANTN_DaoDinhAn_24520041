@@ -1,0 +1,4 @@
+alert tcp any any -> any 80 (msg:"T06 tcp 80"; sid:3600001; rev:1;)
+alert tcp any any -> any any (msg:"T06 tcp any"; sid:3600002; rev:1;)
+alert udp any any -> any 53 (msg:"T06 udp 53"; sid:3600003; rev:1;)
+alert tcp any any -> any 443 (msg:"T06 tcp 443"; sid:3600004; rev:1;)
