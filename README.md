@@ -45,7 +45,9 @@ Cài đặt các thư viện cần thiết:
 
 ### Ghi tiếp vào file JSON Lines hiện có
 
-    python main.py --pcap pcaps/sample.pcap --append
+Không truyền `--overwrite`; chương trình mặc định ghi tiếp vào file output:
+
+    python main.py --pcap pcaps/sample.pcap
 
 Mặc định, các event sau khi parse được ghi vào:
 
@@ -198,3 +200,44 @@ Các PCAP của Bài tập 1 được gom tại:
 
 Assignment 2 dùng lại các PCAP này để kiểm tra integration trong pipeline.
 
+## Bài tập 3: Core Engine IDS
+
+Core Engine được chạy sau Decoder, Preprocessor và Flow Tracker:
+
+    Normalized PacketEvent + Flow Context
+        -> Rule Repository/Indexer
+        -> Rule Evaluation Engine
+        -> Rule Matching Engine
+        -> Detection Event Generator
+        -> alerts.jsonl
+
+Khi không truyền `--rules`, chương trình giữ nguyên hành vi của Bài tập 01–02
+và không tạo alert output.
+
+### Chạy với rule mẫu
+
+    python main.py \
+      --pcap TEST/assignment1/http_get/input.pcap \
+      --output output/events.jsonl \
+      --flow-output output/flows.jsonl \
+      --rules rules/assignment3.rules \
+      --alert-output output/alerts.jsonl \
+      --overwrite
+
+Có thể lặp lại `--rules` để nạp nhiều file. Các tùy chọn Core Engine:
+
+    --rules FILE
+    --disable-rule-file FILE
+    --disable-sid SID
+    --alert-output PATH
+
+`--disable-rule-file` và `--disable-sid` cũng có thể lặp lại. Rule lỗi hoặc
+unsupported được ghi diagnostic nhưng không làm dừng capture. Nếu nhiều rule
+có cùng SID, runtime chọn revision cao nhất và vô hiệu các bản còn lại.
+
+Packet events, flow summaries và Detection Events được ghi thành ba JSON Lines
+output độc lập. Bộ rule demo nằm tại `rules/assignment3.rules`.
+
+### Kiểm thử Core Engine
+
+    python -m pytest -q tests/test_assignment3_*.py
