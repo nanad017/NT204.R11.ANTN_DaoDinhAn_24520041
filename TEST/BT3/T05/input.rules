@@ -1,0 +1,2 @@
+alert tcp 192.0.2.10 50000 -> 198.51.100.20 80 (msg:"T05 forward"; sid:3500001; rev:1;)
+alert tcp 192.0.2.10 50000 <> 198.51.100.20 80 (msg:"T05 bidirectional"; sid:3500002; rev:1;)
