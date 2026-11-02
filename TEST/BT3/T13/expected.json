@@ -1,0 +1,11 @@
+{
+  "candidate_count": 3,
+  "error_count": 0,
+  "match_count": 2,
+  "matched_sids": [4300001, 4300002],
+  "statistics": {
+    "events_evaluated": 1,
+    "matches": 2,
+    "rules_evaluated": 3
+  }
+}
