@@ -1,0 +1,1 @@
+alert tcp any any -> any 80 (msg:"T08 established"; flow:to_server,established; content:"AUTH"; sid:3800001; rev:1;)
