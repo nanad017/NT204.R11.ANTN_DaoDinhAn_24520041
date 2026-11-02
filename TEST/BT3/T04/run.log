@@ -1,0 +1,16 @@
+{
+  "destination_ip": "198.51.100.0/24",
+  "destination_port": [
+    80,
+    80
+  ],
+  "direction": "->",
+  "protocol": "tcp",
+  "source_ip": "192.0.2.10",
+  "source_port": [
+    1024,
+    2048
+  ],
+  "status": "valid"
+}
+PASS: T04
