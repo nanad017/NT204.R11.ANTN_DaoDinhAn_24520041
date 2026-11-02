@@ -1,0 +1,6 @@
+{
+  "flags_pa_dsize_5": true,
+  "flags_pa_dsize_gt_5": false,
+  "flags_s_dsize_5": false
+}
+PASS: T12
