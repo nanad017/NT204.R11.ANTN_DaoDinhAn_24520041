@@ -1,0 +1,15 @@
+{
+  "distance_1_within_6": false,
+  "distance_1_within_8": true,
+  "match_spans": [
+    [
+      0,
+      4
+    ],
+    [
+      7,
+      12
+    ]
+  ]
+}
+PASS: T11

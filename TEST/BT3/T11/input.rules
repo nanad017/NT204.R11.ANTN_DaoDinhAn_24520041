@@ -1,0 +1,2 @@
+alert tcp any any -> any 80 (msg:"T11 match"; content:"USER"; content:"admin"; distance:1; within:8; sid:4100001; rev:1;)
+alert tcp any any -> any 80 (msg:"T11 narrow"; content:"USER"; content:"admin"; distance:1; within:6; sid:4100002; rev:1;)
