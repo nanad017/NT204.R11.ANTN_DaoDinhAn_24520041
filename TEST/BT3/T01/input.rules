@@ -1,0 +1,6 @@
+# Comment and blank lines must be ignored.
+
+alert tcp any any -> any 80 (msg:"T01 HTTP"; sid:3100001; rev:1;)
+
+# Another valid protocol.
+alert udp any any -> any 53 (msg:"T01 DNS"; sid:3100002; rev:1;)
