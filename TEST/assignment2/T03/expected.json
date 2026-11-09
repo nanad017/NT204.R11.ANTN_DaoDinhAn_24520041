@@ -1,0 +1,12 @@
+{
+  "base64": {
+    "decode_status": "success",
+    "decoded_body": "Hello World!",
+    "encoding": "base64"
+  },
+  "quoted_printable": {
+    "decode_status": "success",
+    "decoded_body": "Hello world!",
+    "encoding": "quoted-printable"
+  }
+}

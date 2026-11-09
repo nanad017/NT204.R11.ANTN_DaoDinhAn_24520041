@@ -1,0 +1,21 @@
+{
+  "normal_close": [
+    {"flags": ["SYN"], "timestamp": "2026-01-01T00:00:00+00:00"},
+    {
+      "endpoints": {"dest_ip": "192.0.2.1", "dest_port": 50000, "src_ip": "198.51.100.1", "src_port": 80},
+      "flags": ["SYN", "ACK"],
+      "timestamp": "2026-01-01T00:00:01+00:00"
+    },
+    {"flags": ["ACK"], "timestamp": "2026-01-01T00:00:02+00:00"},
+    {"flags": ["FIN"], "timestamp": "2026-01-01T00:00:03+00:00"},
+    {
+      "endpoints": {"dest_ip": "192.0.2.1", "dest_port": 50000, "src_ip": "198.51.100.1", "src_port": 80},
+      "flags": ["FIN", "ACK"],
+      "timestamp": "2026-01-01T00:00:04+00:00"
+    }
+  ],
+  "reset": {
+    "flags": ["RST"],
+    "timestamp": "2026-01-01T00:00:05+00:00"
+  }
+}

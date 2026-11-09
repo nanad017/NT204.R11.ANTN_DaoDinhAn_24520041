@@ -1,0 +1,28 @@
+{
+  "query": {
+    "event": {
+      "dest_port": 53,
+      "packet_length": 60,
+      "proto": "UDP",
+      "src_port": 53000
+    },
+    "udp": {
+      "length": 40,
+      "payload_length": 32
+    }
+  },
+  "response": {
+    "event": {
+      "dest_ip": "192.0.2.1",
+      "dest_port": 53000,
+      "packet_length": 100,
+      "proto": "UDP",
+      "src_ip": "198.51.100.1",
+      "src_port": 53
+    },
+    "udp": {
+      "length": 80,
+      "payload_length": 72
+    }
+  }
+}

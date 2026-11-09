@@ -1,0 +1,14 @@
+{
+  "backward": {
+    "dest_ip": "192.0.2.1",
+    "dest_port": 50000,
+    "src_ip": "198.51.100.1",
+    "src_port": 80
+  },
+  "forward": {
+    "dest_ip": "198.51.100.1",
+    "dest_port": 80,
+    "src_ip": "192.0.2.1",
+    "src_port": 50000
+  }
+}

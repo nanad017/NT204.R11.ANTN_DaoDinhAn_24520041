@@ -1,0 +1,6 @@
+{
+  "active_flow_count": 1,
+  "directions": ["forward", "backward", "forward"],
+  "flow_ids": [1, 1, 1],
+  "state": "ESTABLISHED"
+}

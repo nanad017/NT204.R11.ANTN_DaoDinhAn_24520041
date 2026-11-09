@@ -1,100 +1,167 @@
 # Báo cáo kiểm thử Assignment 2
 
-## 1. Thông tin chạy test
+## 1. Cấu trúc bằng chứng
 
-File test:
+```text
+TEST/assignment2/
+├── result.md
+├── T01/
+│   ├── input.json
+│   ├── expected.json
+│   ├── actual.json
+│   ├── command.txt
+│   ├── run.log
+│   ├── exit_code.txt
+│   └── result.md
+├── ...
+└── T14/
+    └── các file bằng chứng giống T01
+```
 
-    tests/test_assignment2.py
+Mỗi test case có input, expected, actual, lệnh chạy, log, exit code và báo cáo PASS/FAIL, cùng cách trình bày với các assignment còn lại.
 
-Lệnh chạy:
+## 2. Cách chạy
 
-    .venv/bin/python -m pytest -q tests/test_assignment2.py
+```bash
+uv run --with scapy==2.7.0 --with pytest python -m pytest -q tests/test_assignment2.py
+```
 
-Kết quả:
+Chạy riêng một case:
 
-    21 passed
+```bash
+uv run --with scapy==2.7.0 --with pytest python -m pytest -q tests/test_assignment2.py::test_t01_http_url_decoding_preserves_raw_uri
+```
 
-Trong đó có 14 test bắt buộc T01–T14 và các test bổ sung về pipeline, flush,
-timestamp, five-tuple reuse, MIME không hỗ trợ và giới hạn kích thước.
+Môi trường: `Linux-7.3.1-1-cachyos-x86_64-with-glibc2.44`, Python `3.12.13`, Scapy `2.7.0`, pytest `9.2.0`.
 
-Kiểm tra toàn bộ project:
+## 3. Kết quả tổng hợp
 
-    .venv/bin/python -m pytest -q
+- T01–T14: **14/14 PASS**, 0 FAIL.
+- PCAP integration: **PASS** (12/12 scenario).
+- `tests/test_assignment2.py`: **PASS** — `21 passed in 0.04s`.
+- Toàn project: **PASS** — `149 passed in 0.16s`.
 
-Kết quả:
-
-    49 passed
-
-Các input dưới đây là input trực tiếp của từng test. Output là giá trị thực tế
-được lấy lại khi chạy code hiện tại.
-
----
-
-## T01 – HTTP URL decoding
-
-### Test dùng
-
-    test_t01_http_url_decoding_preserves_raw_uri()
-
-### Input
-
-    HTTPInfo(
-        url="/search?q=%27%20OR%201%3D1+literal"
-    )
-
-### Mong đợi
-
-- Giải mã các mã percent như %27, %20 và %3D.
-- Giữ nguyên URL gốc.
-- Dấu + trong URI thông thường không tự đổi thành khoảng trắng.
-
-### Output thực tế
-
-    {
-      "raw_url": "/search?q=%27%20OR%201%3D1+literal",
-      "decoded_url": "/search?q=' OR 1=1+literal",
-      "decoded_query": "q=' OR 1=1+literal",
-      "status": "success"
-    }
-
-### Phân tích
-
-Kết quả đạt yêu cầu. raw_url vẫn giữ nguyên để phục vụ phân tích bảo mật,
-còn decoded_url và decoded_query được lưu riêng sau khi giải mã.
+| Test | Nội dung theo PDF | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| T01 | HTTP URL decode | PASS | [T01/result.md](T01/result.md) |
+| T02 | HTML entity | PASS | [T02/result.md](T02/result.md) |
+| T03 | SMTP Base64 và Quoted-Printable | PASS | [T03/result.md](T03/result.md) |
+| T04 | Invalid UTF-8 bytes | PASS | [T04/result.md](T04/result.md) |
+| T05 | Normalization | PASS | [T05/result.md](T05/result.md) |
+| T06 | Missing fields | PASS | [T06/result.md](T06/result.md) |
+| T07 | TCP handshake | PASS | [T07/result.md](T07/result.md) |
+| T08 | Bidirectional flow | PASS | [T08/result.md](T08/result.md) |
+| T09 | TCP close và reset | PASS | [T09/result.md](T09/result.md) |
+| T10 | UDP query/response | PASS | [T10/result.md](T10/result.md) |
+| T11 | Concurrent flows | PASS | [T11/result.md](T11/result.md) |
+| T12 | Idle timeout | PASS | [T12/result.md](T12/result.md) |
+| T13 | Flow statistics | PASS | [T13/result.md](T13/result.md) |
+| T14 | Malformed event | PASS | [T14/result.md](T14/result.md) |
 
 ---
 
-## T02 – HTML entity decoding
+## 4. Chi tiết T01–T14
+
+## T01 – HTTP URL decode
 
 ### Test dùng
 
-    test_t02_html_entity_decoding_is_separate_from_raw_body()
+- Pytest: `tests/test_assignment2.py::test_t01_http_url_decoding_preserves_raw_uri`
+- Lệnh chạy trực tiếp:
+
+```bash
+uv run --with scapy==2.7.0 --with pytest python -m pytest -q tests/test_assignment2.py::test_t01_http_url_decoding_preserves_raw_uri
+```
 
 ### Input
 
-    HTTPInfo(
-        body="&lt;script&gt;alert(1)&lt;/script&gt;",
-        http_content_type="text/html"
-    )
+```json
+{
+  "url": "/search?q=%27%20OR%201%3D1+literal"
+}
+```
 
 ### Mong đợi
 
-- Giải mã &lt; thành < và &gt; thành >.
-- Giữ nguyên body gốc.
-- Không làm chương trình dừng.
+```json
+{
+  "decoded_query": "q=' OR 1=1+literal",
+  "decoded_url": "/search?q=' OR 1=1+literal",
+  "decoder_status": "success",
+  "raw_url": "/search?q=%27%20OR%201%3D1+literal"
+}
+```
 
 ### Output thực tế
 
-    {
-      "raw_body": "&lt;script&gt;alert(1)&lt;/script&gt;",
-      "html_decoded_body": "<script>alert(1)</script>",
-      "status": "success"
-    }
+```json
+{
+  "decoded_query": "q=' OR 1=1+literal",
+  "decoded_url": "/search?q=' OR 1=1+literal",
+  "decoder_status": "success",
+  "raw_url": "/search?q=%27%20OR%201%3D1+literal"
+}
+```
 
 ### Phân tích
 
-Kết quả đạt yêu cầu. Dữ liệu gốc và dữ liệu HTML đã decode nằm ở hai field
-khác nhau, nên không làm mất thông tin ban đầu.
+Percent-encoding được giải mã nhưng raw URI vẫn được bảo toàn; dấu `+` trong URI không bị đổi sai thành khoảng trắng. Output thực tế trùng khớp hoàn toàn với expected.
+
+### Kết luận
+
+**PASS**, exit code `0`. Bằng chứng: [`run.log`](T01/run.log), [`actual.json`](T01/actual.json), [`exit_code.txt`](T01/exit_code.txt).
+
+
+---
+
+## T02 – HTML entity
+
+### Test dùng
+
+- Pytest: `tests/test_assignment2.py::test_t02_html_entity_decoding_is_separate_from_raw_body`
+- Lệnh chạy trực tiếp:
+
+```bash
+uv run --with scapy==2.7.0 --with pytest python -m pytest -q tests/test_assignment2.py::test_t02_html_entity_decoding_is_separate_from_raw_body
+```
+
+### Input
+
+```json
+{
+  "body": "&lt;script&gt;alert(1)&lt;/script&gt;",
+  "content_type": "text/html"
+}
+```
+
+### Mong đợi
+
+```json
+{
+  "decoder_status": "success",
+  "html_decoded_body": "<script>alert(1)</script>",
+  "raw_body": "&lt;script&gt;alert(1)&lt;/script&gt;"
+}
+```
+
+### Output thực tế
+
+```json
+{
+  "decoder_status": "success",
+  "html_decoded_body": "<script>alert(1)</script>",
+  "raw_body": "&lt;script&gt;alert(1)&lt;/script&gt;"
+}
+```
+
+### Phân tích
+
+HTML entity được decode vào field riêng, raw body không bị thay đổi và decoder không phát sinh lỗi. Output thực tế trùng khớp hoàn toàn với expected.
+
+### Kết luận
+
+**PASS**, exit code `0`. Bằng chứng: [`run.log`](T02/run.log), [`actual.json`](T02/actual.json), [`exit_code.txt`](T02/exit_code.txt).
+
 
 ---
 
@@ -102,89 +169,124 @@ khác nhau, nên không làm mất thông tin ban đầu.
 
 ### Test dùng
 
-    test_t03_smtp_base64_and_quoted_printable_decode_when_header_identifies_it()
+- Pytest: `tests/test_assignment2.py::test_t03_smtp_base64_and_quoted_printable_decode_when_header_identifies_it`
+- Lệnh chạy trực tiếp:
+
+```bash
+uv run --with scapy==2.7.0 --with pytest python -m pytest -q tests/test_assignment2.py::test_t03_smtp_base64_and_quoted_printable_decode_when_header_identifies_it
+```
 
 ### Input
 
-Base64:
-
-    Content-Type: text/plain; charset=utf-8
-    Content-Transfer-Encoding: base64
-
-    SGVsbG8gV29ybGQh
-
-Quoted-Printable:
-
-    Content-Type: text/plain
-    Content-Transfer-Encoding: quoted-printable
-
-    Hello=20world!
+```json
+{
+  "base64": {
+    "mime_payload": "Content-Type: text/plain; charset=utf-8\r\nContent-Transfer-Encoding: base64\r\n\r\nSGVsbG8gV29ybGQh"
+  },
+  "quoted_printable": {
+    "mime_payload": "Content-Type: text/plain\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\nHello=20world!"
+  }
+}
+```
 
 ### Mong đợi
 
-- Chỉ decode khi header xác định encoding.
-- Base64 cho ra Hello World!.
-- Quoted-Printable cho ra Hello world!.
-- Trạng thái decode là success.
+```json
+{
+  "base64": {
+    "decode_status": "success",
+    "decoded_body": "Hello World!",
+    "encoding": "base64"
+  },
+  "quoted_printable": {
+    "decode_status": "success",
+    "decoded_body": "Hello world!",
+    "encoding": "quoted-printable"
+  }
+}
+```
 
 ### Output thực tế
 
-    {
-      "base64": {
-        "decoded_body": "Hello World!",
-        "decode_status": "success",
-        "encoding": "base64"
-      },
-      "quoted_printable": {
-        "decoded_body": "Hello world!",
-        "decode_status": "success",
-        "encoding": "quoted-printable"
-      }
-    }
+```json
+{
+  "base64": {
+    "decode_status": "success",
+    "decoded_body": "Hello World!",
+    "encoding": "base64"
+  },
+  "quoted_printable": {
+    "decode_status": "success",
+    "decoded_body": "Hello world!",
+    "encoding": "quoted-printable"
+  }
+}
+```
 
 ### Phân tích
 
-Kết quả đạt yêu cầu. Decoder không decode mù payload SMTP mà đọc
-Content-Transfer-Encoding trước rồi mới chọn cách giải mã.
+Decoder chỉ chọn Base64/Quoted-Printable khi MIME header chỉ ra encoding và ghi trạng thái thành công. Output thực tế trùng khớp hoàn toàn với expected.
+
+### Kết luận
+
+**PASS**, exit code `0`. Bằng chứng: [`run.log`](T03/run.log), [`actual.json`](T03/actual.json), [`exit_code.txt`](T03/exit_code.txt).
+
 
 ---
 
-## T04 – Invalid UTF-8
+## T04 – Invalid UTF-8 bytes
 
 ### Test dùng
 
-    test_t04_invalid_utf8_is_partial_and_does_not_raise()
+- Pytest: `tests/test_assignment2.py::test_t04_invalid_utf8_is_partial_and_does_not_raise`
+- Lệnh chạy trực tiếp:
+
+```bash
+uv run --with scapy==2.7.0 --with pytest python -m pytest -q tests/test_assignment2.py::test_t04_invalid_utf8_is_partial_and_does_not_raise
+```
 
 ### Input
 
-    Content-Type: text/plain; charset=utf-8
-    Content-Transfer-Encoding: base64
-
-    //4=
-
-Sau Base64 decode, dữ liệu là byte không hợp lệ với UTF-8.
+```json
+{
+  "mime_payload": "Content-Type: text/plain; charset=utf-8\r\nContent-Transfer-Encoding: base64\r\n\r\n//4="
+}
+```
 
 ### Mong đợi
 
-- Không phát sinh exception làm dừng xử lý.
-- Trạng thái là partial.
-- Có thông tin lỗi character decoding.
+```json
+{
+  "decoded_body": "��",
+  "decoder_errors": [
+    "MIME character decoding: invalid character sequence"
+  ],
+  "decoder_status": "partial",
+  "email_decode_status": "partial"
+}
+```
 
 ### Output thực tế
 
-    {
-      "decoder_status": "partial",
-      "email_decode_status": "partial",
-      "decoded_body": "��",
-      "errors": [
-        "MIME character decoding: invalid character sequence"
-      ]
-    }
+```json
+{
+  "decoded_body": "��",
+  "decoder_errors": [
+    "MIME character decoding: invalid character sequence"
+  ],
+  "decoder_status": "partial",
+  "email_decode_status": "partial"
+}
+```
 
 ### Phân tích
 
-Kết quả đạt yêu cầu. Byte lỗi được thay bằng ký tự thay thế �, đồng thời
-Decoder ghi trạng thái partial và tiếp tục xử lý.
+Chuỗi UTF-8 lỗi được thay thế an toàn, ghi lỗi và trạng thái partial thay vì làm dừng chương trình. Output thực tế trùng khớp hoàn toàn với expected.
+
+### Kết luận
+
+**PASS**, exit code `0`. Bằng chứng: [`run.log`](T04/run.log), [`actual.json`](T04/actual.json), [`exit_code.txt`](T04/exit_code.txt).
+
 
 ---
 
@@ -192,53 +294,80 @@ Decoder ghi trạng thái partial và tiếp tục xử lý.
 
 ### Test dùng
 
-    test_t05_normalization_is_consistent_and_does_not_lower_uri()
+- Pytest: `tests/test_assignment2.py::test_t05_normalization_is_consistent_and_does_not_lower_uri`
+- Lệnh chạy trực tiếp:
+
+```bash
+uv run --with scapy==2.7.0 --with pytest python -m pytest -q tests/test_assignment2.py::test_t05_normalization_is_consistent_and_does_not_lower_uri
+```
 
 ### Input
 
-    {
-      "proto": "tcp",
-      "app_proto": "HTTP",
-      "timestamp": "2026-01-01T00:00:00Z",
-      "hostname": "Example.TEST.",
-      "header_name": "Host",
-      "url": "/CaseSensitive/Path"
-    }
+```json
+{
+  "app_proto": "HTTP",
+  "header_name": "Host",
+  "hostname": "Example.TEST.",
+  "proto": "tcp",
+  "timestamp": "2026-01-01T00:00:00Z",
+  "url": "/CaseSensitive/Path"
+}
+```
 
 ### Mong đợi
 
-- Protocol được chuẩn hóa thành chữ hoa.
-- Application protocol được chuẩn hóa thành chữ thường.
-- Domain được chuẩn hóa thành chữ thường và bỏ dấu chấm cuối.
-- HTTP header name được chuẩn hóa nhưng giữ original_name.
-- Không chuyển path URL thành chữ thường.
-- Timestamp được đưa về dạng UTC ISO-8601.
+```json
+{
+  "app_proto": "http",
+  "header_name": "host",
+  "hostname": "example.test",
+  "normalized_url": "/CaseSensitive/Path",
+  "original_header_name": "Host",
+  "original_values": {
+    "app_proto": "HTTP",
+    "http.header:Host": "Host",
+    "http.hostname": "Example.TEST.",
+    "proto": "tcp",
+    "timestamp": "2026-01-01T00:00:00Z"
+  },
+  "preprocess_status": "valid",
+  "proto": "TCP",
+  "timestamp": "2026-01-01T00:00:00+00:00",
+  "url": "/CaseSensitive/Path"
+}
+```
 
 ### Output thực tế
 
-    {
-      "proto": "TCP",
-      "app_proto": "http",
-      "hostname": "example.test",
-      "header_name": "host",
-      "original_header_name": "Host",
-      "url": "/CaseSensitive/Path",
-      "normalized_url": "/CaseSensitive/Path",
-      "timestamp": "2026-01-01T00:00:00+00:00",
-      "status": "valid",
-      "original_values": {
-        "proto": "tcp",
-        "app_proto": "HTTP",
-        "timestamp": "2026-01-01T00:00:00Z",
-        "http.hostname": "Example.TEST.",
-        "http.header:Host": "Host"
-      }
-    }
+```json
+{
+  "app_proto": "http",
+  "header_name": "host",
+  "hostname": "example.test",
+  "normalized_url": "/CaseSensitive/Path",
+  "original_header_name": "Host",
+  "original_values": {
+    "app_proto": "HTTP",
+    "http.header:Host": "Host",
+    "http.hostname": "Example.TEST.",
+    "proto": "tcp",
+    "timestamp": "2026-01-01T00:00:00Z"
+  },
+  "preprocess_status": "valid",
+  "proto": "TCP",
+  "timestamp": "2026-01-01T00:00:00+00:00",
+  "url": "/CaseSensitive/Path"
+}
+```
 
 ### Phân tích
 
-Kết quả đạt yêu cầu. Các giá trị an toàn để chuẩn hóa được thay đổi, còn
-giá trị gốc vẫn được lưu trong original_values hoặc original_name.
+Protocol, app protocol, domain, header và timestamp được chuẩn hóa; URL phân biệt hoa thường vẫn giữ nguyên. Output thực tế trùng khớp hoàn toàn với expected.
+
+### Kết luận
+
+**PASS**, exit code `0`. Bằng chứng: [`run.log`](T05/run.log), [`actual.json`](T05/actual.json), [`exit_code.txt`](T05/exit_code.txt).
+
 
 ---
 
@@ -246,41 +375,82 @@ giá trị gốc vẫn được lưu trong original_values hoặc original_name.
 
 ### Test dùng
 
-    test_t06_missing_fields_have_invalid_status_without_exception()
+- Pytest: `tests/test_assignment2.py::test_t06_missing_fields_have_invalid_status_without_exception`
+- Lệnh chạy trực tiếp:
+
+```bash
+uv run --with scapy==2.7.0 --with pytest python -m pytest -q tests/test_assignment2.py::test_t06_missing_fields_have_invalid_status_without_exception
+```
 
 ### Input
 
-    {
-      "timestamp": "2026-01-01T00:00:00+00:00",
-      "src_ip": null,
-      "dest_ip": null,
-      "proto": null
-    }
+```json
+{
+  "optional_missing": {},
+  "required_missing": {
+    "timestamp": "2026-01-01T00:00:00+00:00"
+  }
+}
+```
 
 ### Mong đợi
 
-- Không phát sinh exception.
-- Event được đánh dấu invalid.
-- Chính sách mặc định retain được áp dụng.
-- Có reason mô tả các field bị thiếu.
+```json
+{
+  "optional_missing": {
+    "dns": null,
+    "email": null,
+    "http": null,
+    "parser_errors": [],
+    "preprocess_status": "valid",
+    "smtp": null
+  },
+  "required_missing": {
+    "errors": [
+      "src_ip is required",
+      "dest_ip is required",
+      "transport protocol is missing"
+    ],
+    "processing_action": "retain",
+    "reason": "src_ip is required; dest_ip is required; transport protocol is missing",
+    "status": "invalid"
+  }
+}
+```
 
 ### Output thực tế
 
-    {
-      "status": "invalid",
-      "processing_action": "retain",
-      "reason": "src_ip is required; dest_ip is required; transport protocol is missing",
-      "errors": [
-        "src_ip is required",
-        "dest_ip is required",
-        "transport protocol is missing"
-      ]
-    }
+```json
+{
+  "optional_missing": {
+    "dns": null,
+    "email": null,
+    "http": null,
+    "parser_errors": [],
+    "preprocess_status": "valid",
+    "smtp": null
+  },
+  "required_missing": {
+    "errors": [
+      "src_ip is required",
+      "dest_ip is required",
+      "transport protocol is missing"
+    ],
+    "processing_action": "retain",
+    "reason": "src_ip is required; dest_ip is required; transport protocol is missing",
+    "status": "invalid"
+  }
+}
+```
 
 ### Phân tích
 
-Kết quả đạt yêu cầu. Preprocessor gom nhiều lỗi trong cùng một event thay vì
-dừng ngay ở lỗi đầu tiên.
+Field tùy chọn thiếu giữ giá trị `null`/`[]`; field bắt buộc thiếu được gom lỗi và xử lý theo policy retain. Output thực tế trùng khớp hoàn toàn với expected.
+
+### Kết luận
+
+**PASS**, exit code `0`. Bằng chứng: [`run.log`](T06/run.log), [`actual.json`](T06/actual.json), [`exit_code.txt`](T06/exit_code.txt).
+
 
 ---
 
@@ -288,34 +458,93 @@ dừng ngay ở lỗi đầu tiên.
 
 ### Test dùng
 
-    test_t07_tcp_handshake_reaches_established_in_one_flow()
+- Pytest: `tests/test_assignment2.py::test_t07_tcp_handshake_reaches_established_in_one_flow`
+- Lệnh chạy trực tiếp:
+
+```bash
+uv run --with scapy==2.7.0 --with pytest python -m pytest -q tests/test_assignment2.py::test_t07_tcp_handshake_reaches_established_in_one_flow
+```
 
 ### Input
 
-    Packet 1: SYN       A:50000 -> B:80
-    Packet 2: SYN/ACK   B:80    -> A:50000
-    Packet 3: ACK       A:50000 -> B:80
+```json
+{
+  "packets": [
+    {
+      "flags": [
+        "SYN"
+      ],
+      "timestamp": "2026-01-01T00:00:00+00:00"
+    },
+    {
+      "endpoints": {
+        "dest_ip": "192.0.2.1",
+        "dest_port": 50000,
+        "src_ip": "198.51.100.1",
+        "src_port": 80
+      },
+      "flags": [
+        "SYN",
+        "ACK"
+      ],
+      "timestamp": "2026-01-01T00:00:01+00:00"
+    },
+    {
+      "flags": [
+        "ACK"
+      ],
+      "timestamp": "2026-01-01T00:00:02+00:00"
+    }
+  ]
+}
+```
 
 ### Mong đợi
 
-- Ba packet dùng chung một flow_id.
-- Flow chuyển sang ESTABLISHED.
-- Chỉ có một flow active.
-- Hướng packet được nhận diện đúng.
+```json
+{
+  "active_flow_count": 1,
+  "directions": [
+    "forward",
+    "backward",
+    "forward"
+  ],
+  "flow_ids": [
+    1,
+    1,
+    1
+  ],
+  "state": "ESTABLISHED"
+}
+```
 
 ### Output thực tế
 
-    {
-      "flow_ids": [1, 1, 1],
-      "state": "ESTABLISHED",
-      "active_flow_count": 1,
-      "directions": ["forward", "backward", "forward"]
-    }
+```json
+{
+  "active_flow_count": 1,
+  "directions": [
+    "forward",
+    "backward",
+    "forward"
+  ],
+  "flow_ids": [
+    1,
+    1,
+    1
+  ],
+  "state": "ESTABLISHED"
+}
+```
 
 ### Phân tích
 
-Kết quả đạt yêu cầu. Flow được tạo từ SYN đầu tiên, SYN/ACK được xác định là
-hướng ngược lại và ACK cuối hoàn tất handshake.
+SYN, SYN/ACK và ACK cùng flow ID; packet ACK cuối đưa TCP flow sang ESTABLISHED. Output thực tế trùng khớp hoàn toàn với expected.
+
+### Kết luận
+
+**PASS**, exit code `0`. Bằng chứng: [`run.log`](T07/run.log), [`actual.json`](T07/actual.json), [`exit_code.txt`](T07/exit_code.txt).
+
 
 ---
 
@@ -323,32 +552,64 @@ hướng ngược lại và ACK cuối hoàn tất handshake.
 
 ### Test dùng
 
-    test_t08_bidirectional_packets_share_id_and_direction_is_stable()
+- Pytest: `tests/test_assignment2.py::test_t08_bidirectional_packets_share_id_and_direction_is_stable`
+- Lệnh chạy trực tiếp:
+
+```bash
+uv run --with scapy==2.7.0 --with pytest python -m pytest -q tests/test_assignment2.py::test_t08_bidirectional_packets_share_id_and_direction_is_stable
+```
 
 ### Input
 
-    Forward:  192.0.2.1:50000 -> 198.51.100.1:80
-    Backward: 198.51.100.1:80 -> 192.0.2.1:50000
+```json
+{
+  "backward": {
+    "dest_ip": "192.0.2.1",
+    "dest_port": 50000,
+    "src_ip": "198.51.100.1",
+    "src_port": 80
+  },
+  "forward": {
+    "dest_ip": "198.51.100.1",
+    "dest_port": 80,
+    "src_ip": "192.0.2.1",
+    "src_port": 50000
+  }
+}
+```
 
 ### Mong đợi
 
-- Hai chiều có cùng flow_id.
-- Packet thứ hai có hướng backward.
-- Không tạo flow thứ hai.
+```json
+{
+  "active_flow_count": 1,
+  "backward_direction": "backward",
+  "backward_flow_id": 1,
+  "forward_direction": "forward",
+  "forward_flow_id": 1
+}
+```
 
 ### Output thực tế
 
-    {
-      "forward_flow_id": 1,
-      "backward_flow_id": 1,
-      "backward_direction": "backward",
-      "active_flow_count": 1
-    }
+```json
+{
+  "active_flow_count": 1,
+  "backward_direction": "backward",
+  "backward_flow_id": 1,
+  "forward_direction": "forward",
+  "forward_flow_id": 1
+}
+```
 
 ### Phân tích
 
-Kết quả đạt yêu cầu. _flow_key() sắp xếp hai endpoint để key không phụ thuộc
-chiều truyền packet.
+Five-tuple đảo chiều được chuẩn hóa về cùng flow key và hướng backward được gắn đúng. Output thực tế trùng khớp hoàn toàn với expected.
+
+### Kết luận
+
+**PASS**, exit code `0`. Bằng chứng: [`run.log`](T08/run.log), [`actual.json`](T08/actual.json), [`exit_code.txt`](T08/exit_code.txt).
+
 
 ---
 
@@ -356,39 +617,106 @@ chiều truyền packet.
 
 ### Test dùng
 
-    test_t09_fin_close_and_rst_are_terminal_states()
+- Pytest: `tests/test_assignment2.py::test_t09_fin_close_and_rst_are_terminal_states`
+- Lệnh chạy trực tiếp:
+
+```bash
+uv run --with scapy==2.7.0 --with pytest python -m pytest -q tests/test_assignment2.py::test_t09_fin_close_and_rst_are_terminal_states
+```
 
 ### Input
 
-Đóng bình thường:
-
-    SYN -> SYN/ACK -> ACK -> FIN -> FIN/ACK
-
-Đóng bất thường:
-
-    RST
+```json
+{
+  "normal_close": [
+    {
+      "flags": [
+        "SYN"
+      ],
+      "timestamp": "2026-01-01T00:00:00+00:00"
+    },
+    {
+      "endpoints": {
+        "dest_ip": "192.0.2.1",
+        "dest_port": 50000,
+        "src_ip": "198.51.100.1",
+        "src_port": 80
+      },
+      "flags": [
+        "SYN",
+        "ACK"
+      ],
+      "timestamp": "2026-01-01T00:00:01+00:00"
+    },
+    {
+      "flags": [
+        "ACK"
+      ],
+      "timestamp": "2026-01-01T00:00:02+00:00"
+    },
+    {
+      "flags": [
+        "FIN"
+      ],
+      "timestamp": "2026-01-01T00:00:03+00:00"
+    },
+    {
+      "endpoints": {
+        "dest_ip": "192.0.2.1",
+        "dest_port": 50000,
+        "src_ip": "198.51.100.1",
+        "src_port": 80
+      },
+      "flags": [
+        "FIN",
+        "ACK"
+      ],
+      "timestamp": "2026-01-01T00:00:04+00:00"
+    }
+  ],
+  "reset": {
+    "flags": [
+      "RST"
+    ],
+    "timestamp": "2026-01-01T00:00:05+00:00"
+  }
+}
+```
 
 ### Mong đợi
 
-- FIN từ hai hướng đưa flow sang CLOSED.
-- RST đưa flow sang RESET.
-- Flow terminal bị xóa khỏi active table.
-- Five-tuple sau đó có thể tạo flow instance mới.
+```json
+{
+  "active_after_close": 0,
+  "active_after_reset": 0,
+  "closed_flow_id": 1,
+  "closed_state": "CLOSED",
+  "reset_flow_id": 2,
+  "reset_state": "RESET"
+}
+```
 
 ### Output thực tế
 
-    {
-      "closed_state": "CLOSED",
-      "active_after_close": 0,
-      "reset_state": "RESET",
-      "active_after_reset": 0,
-      "flow_ids": [1, 2]
-    }
+```json
+{
+  "active_after_close": 0,
+  "active_after_reset": 0,
+  "closed_flow_id": 1,
+  "closed_state": "CLOSED",
+  "reset_flow_id": 2,
+  "reset_state": "RESET"
+}
+```
 
 ### Phân tích
 
-Kết quả đạt yêu cầu. Flow đóng bằng FIN và flow bị reset bằng RST đều được
-finalize, xóa khỏi bảng active và giữ lại summary.
+FIN từ hai hướng tạo CLOSED; RST tạo RESET; cả hai flow terminal được loại khỏi active table. Output thực tế trùng khớp hoàn toàn với expected.
+
+### Kết luận
+
+**PASS**, exit code `0`. Bằng chứng: [`run.log`](T09/run.log), [`actual.json`](T09/actual.json), [`exit_code.txt`](T09/exit_code.txt).
+
 
 ---
 
@@ -396,40 +724,88 @@ finalize, xóa khỏi bảng active và giữ lại summary.
 
 ### Test dùng
 
-    test_t10_udp_query_response_is_one_bidirectional_flow()
+- Pytest: `tests/test_assignment2.py::test_t10_udp_query_response_is_one_bidirectional_flow`
+- Lệnh chạy trực tiếp:
+
+```bash
+uv run --with scapy==2.7.0 --with pytest python -m pytest -q tests/test_assignment2.py::test_t10_udp_query_response_is_one_bidirectional_flow
+```
 
 ### Input
 
-    Query:    192.0.2.1:53000 -> 198.51.100.1:53, 60 bytes
-    Response: 198.51.100.1:53 -> 192.0.2.1:53000, 100 bytes
+```json
+{
+  "query": {
+    "event": {
+      "dest_port": 53,
+      "packet_length": 60,
+      "proto": "UDP",
+      "src_port": 53000
+    },
+    "udp": {
+      "length": 40,
+      "payload_length": 32
+    }
+  },
+  "response": {
+    "event": {
+      "dest_ip": "192.0.2.1",
+      "dest_port": 53000,
+      "packet_length": 100,
+      "proto": "UDP",
+      "src_ip": "198.51.100.1",
+      "src_port": 53
+    },
+    "udp": {
+      "length": 80,
+      "payload_length": 72
+    }
+  }
+}
+```
 
 ### Mong đợi
 
-- Hai packet thuộc cùng một UDP flow.
-- Tổng packet là 2.
-- Tổng byte là 160.
-- Mỗi hướng có 1 packet.
-- UDP không cần TCP handshake.
+```json
+{
+  "backward_byte_count": 100,
+  "backward_packet_count": 1,
+  "byte_count": 160,
+  "duration": 0.0,
+  "flow_id": 1,
+  "forward_byte_count": 60,
+  "forward_packet_count": 1,
+  "packet_count": 2,
+  "protocol": "UDP",
+  "state": "NEW"
+}
+```
 
 ### Output thực tế
 
-    {
-      "flow_id": 1,
-      "state": "NEW",
-      "protocol": "UDP",
-      "packet_count": 2,
-      "byte_count": 160,
-      "forward_packet_count": 1,
-      "forward_byte_count": 60,
-      "backward_packet_count": 1,
-      "backward_byte_count": 100,
-      "duration": 0.0
-    }
+```json
+{
+  "backward_byte_count": 100,
+  "backward_packet_count": 1,
+  "byte_count": 160,
+  "duration": 0.0,
+  "flow_id": 1,
+  "forward_byte_count": 60,
+  "forward_packet_count": 1,
+  "packet_count": 2,
+  "protocol": "UDP",
+  "state": "NEW"
+}
+```
 
 ### Phân tích
 
-Kết quả đạt yêu cầu. UDP dùng cùng cơ chế five-tuple hai chiều nhưng không có
-state handshake; trạng thái mặc định vẫn là NEW.
+DNS-like UDP query/response cùng flow; packet và byte counter được tách đúng hai chiều. Output thực tế trùng khớp hoàn toàn với expected.
+
+### Kết luận
+
+**PASS**, exit code `0`. Bằng chứng: [`run.log`](T10/run.log), [`actual.json`](T10/actual.json), [`exit_code.txt`](T10/exit_code.txt).
+
 
 ---
 
@@ -437,30 +813,56 @@ state handshake; trạng thái mặc định vẫn là NEW.
 
 ### Test dùng
 
-    test_t11_concurrent_five_tuples_remain_separate()
+- Pytest: `tests/test_assignment2.py::test_t11_concurrent_five_tuples_remain_separate`
+- Lệnh chạy trực tiếp:
+
+```bash
+uv run --with scapy==2.7.0 --with pytest python -m pytest -q tests/test_assignment2.py::test_t11_concurrent_five_tuples_remain_separate
+```
 
 ### Input
 
-    Flow 1: 192.0.2.1:50000 -> 198.51.100.1:80
-    Flow 2: 192.0.2.1:50000 -> 198.51.100.1:443
+```json
+{
+  "flow_1": {
+    "dest_port": 80
+  },
+  "flow_2": {
+    "dest_port": 443
+  }
+}
+```
 
 ### Mong đợi
 
-- Hai five-tuple khác nhau phải có flow khác nhau.
-- Không gộp port 80 và port 443 vào cùng flow.
+```json
+{
+  "active_flow_count": 2,
+  "flow_1_id": 1,
+  "flow_2_id": 2,
+  "separate_flows": true
+}
+```
 
 ### Output thực tế
 
-    {
-      "flow_1_id": 1,
-      "flow_2_id": 2,
-      "active_flow_count": 2
-    }
+```json
+{
+  "active_flow_count": 2,
+  "flow_1_id": 1,
+  "flow_2_id": 2,
+  "separate_flows": true
+}
+```
 
 ### Phân tích
 
-Kết quả đạt yêu cầu. Destination port là một phần của five-tuple nên hai
-connection được tách biệt.
+Hai destination port khác nhau tạo hai flow ID riêng, không bị gộp nhầm. Output thực tế trùng khớp hoàn toàn với expected.
+
+### Kết luận
+
+**PASS**, exit code `0`. Bằng chứng: [`run.log`](T11/run.log), [`actual.json`](T11/actual.json), [`exit_code.txt`](T11/exit_code.txt).
+
 
 ---
 
@@ -468,35 +870,52 @@ connection được tách biệt.
 
 ### Test dùng
 
-    test_t12_idle_timeout_removes_flow_and_keeps_final_summary()
+- Pytest: `tests/test_assignment2.py::test_t12_idle_timeout_removes_flow_and_keeps_final_summary`
+- Lệnh chạy trực tiếp:
+
+```bash
+uv run --with scapy==2.7.0 --with pytest python -m pytest -q tests/test_assignment2.py::test_t12_idle_timeout_removes_flow_and_keeps_final_summary
+```
 
 ### Input
 
-    {
-      "protocol": "UDP",
-      "packet_time": "2026-01-01T00:00:00+00:00",
-      "idle_timeout": 5,
-      "expire_time": "2026-01-01T00:00:05+00:00"
-    }
+```json
+{
+  "expire_time": "2026-01-01T00:00:05+00:00",
+  "packet_time": "2026-01-01T00:00:00+00:00",
+  "tcp_idle_timeout": 5,
+  "udp_idle_timeout": 5
+}
+```
 
 ### Mong đợi
 
-- Flow hết hạn đúng tại mốc 5 giây.
-- Flow bị xóa khỏi active table.
-- Summary cuối vẫn được giữ lại.
+```json
+{
+  "active_flow_count": 0,
+  "completed_packet_count": 1,
+  "expired_count": 1
+}
+```
 
 ### Output thực tế
 
-    {
-      "expired_count": 1,
-      "active_flow_count": 0,
-      "completed_packet_count": 1
-    }
+```json
+{
+  "active_flow_count": 0,
+  "completed_packet_count": 1,
+  "expired_count": 1
+}
+```
 
 ### Phân tích
 
-Kết quả đạt yêu cầu. Test dùng timestamp truyền trực tiếp vào expire() nên
-không phụ thuộc việc sleep hoặc wall-clock.
+Flow hết hạn chính xác tại idle timeout, rời active table nhưng summary cuối vẫn được giữ. Output thực tế trùng khớp hoàn toàn với expected.
+
+### Kết luận
+
+**PASS**, exit code `0`. Bằng chứng: [`run.log`](T12/run.log), [`actual.json`](T12/actual.json), [`exit_code.txt`](T12/exit_code.txt).
+
 
 ---
 
@@ -504,39 +923,120 @@ không phụ thuộc việc sleep hoặc wall-clock.
 
 ### Test dùng
 
-    test_t13_statistics_count_full_packet_bytes_and_duration()
+- Pytest: `tests/test_assignment2.py::test_t13_statistics_count_full_packet_bytes_and_duration`
+- Lệnh chạy trực tiếp:
+
+```bash
+uv run --with scapy==2.7.0 --with pytest python -m pytest -q tests/test_assignment2.py::test_t13_statistics_count_full_packet_bytes_and_duration
+```
 
 ### Input
 
-    Packet 1: length=70, time=00:00:00
-    Packet 2: length=90, time=00:00:05
+```json
+{
+  "packets": [
+    {
+      "flags": [
+        "SYN"
+      ],
+      "packet_length": 60,
+      "timestamp": "2026-01-01T00:00:00+00:00"
+    },
+    {
+      "endpoints": {
+        "dest_ip": "192.0.2.1",
+        "dest_port": 50000,
+        "src_ip": "198.51.100.1",
+        "src_port": 80
+      },
+      "flags": [
+        "SYN",
+        "ACK"
+      ],
+      "packet_length": 60,
+      "timestamp": "2026-01-01T00:00:01+00:00"
+    },
+    {
+      "flags": [
+        "ACK"
+      ],
+      "packet_length": 52,
+      "timestamp": "2026-01-01T00:00:02+00:00"
+    },
+    {
+      "flags": [
+        "ACK",
+        "PSH"
+      ],
+      "packet_length": 100,
+      "timestamp": "2026-01-01T00:00:03+00:00"
+    },
+    {
+      "endpoints": {
+        "dest_ip": "192.0.2.1",
+        "dest_port": 50000,
+        "src_ip": "198.51.100.1",
+        "src_port": 80
+      },
+      "flags": [
+        "FIN",
+        "ACK"
+      ],
+      "packet_length": 60,
+      "timestamp": "2026-01-01T00:00:05+00:00"
+    }
+  ]
+}
+```
 
 ### Mong đợi
 
-- Packet count là 2.
-- Byte count là 70 + 90 = 160.
-- Cả hai packet cùng hướng forward.
-- Duration là 5 giây.
+```json
+{
+  "ack_count": 4,
+  "backward_byte_count": 120,
+  "backward_packet_count": 2,
+  "byte_count": 332,
+  "duration": 5.0,
+  "established": true,
+  "fin_count": 1,
+  "forward_byte_count": 212,
+  "forward_packet_count": 3,
+  "packet_count": 5,
+  "rst_count": 0,
+  "state": "CLOSING",
+  "syn_count": 2
+}
+```
 
 ### Output thực tế
 
-    {
-      "flow_id": 1,
-      "state": "NEW",
-      "protocol": "UDP",
-      "packet_count": 2,
-      "byte_count": 160,
-      "forward_packet_count": 2,
-      "forward_byte_count": 160,
-      "backward_packet_count": 0,
-      "backward_byte_count": 0,
-      "duration": 5.0
-    }
+```json
+{
+  "ack_count": 4,
+  "backward_byte_count": 120,
+  "backward_packet_count": 2,
+  "byte_count": 332,
+  "duration": 5.0,
+  "established": true,
+  "fin_count": 1,
+  "forward_byte_count": 212,
+  "forward_packet_count": 3,
+  "packet_count": 5,
+  "rst_count": 0,
+  "state": "CLOSING",
+  "syn_count": 2
+}
+```
 
 ### Phân tích
 
-Kết quả đạt yêu cầu. Flow Tracker ưu tiên event.packet_length, vì vậy
-byte_count là kích thước packet được cung cấp, không phải chỉ payload.
+Packet/byte counter hai chiều, SYN/ACK/FIN/RST counter và duration đều phản ánh đúng chuỗi TCP. Output thực tế trùng khớp hoàn toàn với expected.
+
+### Kết luận
+
+**PASS**, exit code `0`. Bằng chứng: [`run.log`](T13/run.log), [`actual.json`](T13/actual.json), [`exit_code.txt`](T13/exit_code.txt).
+
 
 ---
 
@@ -544,105 +1044,95 @@ byte_count là kích thước packet được cung cấp, không phải chỉ pa
 
 ### Test dùng
 
-    test_t14_malformed_event_is_safe_and_meaningful()
+- Pytest: `tests/test_assignment2.py::test_t14_malformed_event_is_safe_and_meaningful`
+- Lệnh chạy trực tiếp:
+
+```bash
+uv run --with scapy==2.7.0 --with pytest python -m pytest -q tests/test_assignment2.py::test_t14_malformed_event_is_safe_and_meaningful
+```
 
 ### Input
 
-    {
-      "timestamp": "not-a-timestamp",
-      "src_ip": "not-an-ip",
-      "dest_ip": "198.51.100.1",
-      "src_port": 70000,
-      "dest_port": 80,
-      "proto": "TCP"
-    }
+```json
+{
+  "event": {
+    "dest_ip": "198.51.100.1",
+    "dest_port": 80,
+    "proto": "TCP",
+    "src_ip": "not-an-ip",
+    "src_port": 70000,
+    "timestamp": "not-a-timestamp"
+  },
+  "invalid_event_policy": "retain"
+}
+```
 
 ### Mong đợi
 
-- Không crash.
-- Preprocessor đánh dấu event là invalid.
-- Ghi rõ lý do lỗi.
-- Flow Tracker không tạo flow từ event không hợp lệ.
+```json
+{
+  "flow_result": null,
+  "preprocess_errors": [
+    "timestamp is not ISO-8601",
+    "src_ip is invalid",
+    "src_port must be an integer in range 0..65535"
+  ],
+  "preprocess_status": "invalid",
+  "processing_action": "retain",
+  "reason": "timestamp is not ISO-8601; src_ip is invalid; src_port must be an integer in range 0..65535"
+}
+```
 
 ### Output thực tế
 
-    {
-      "preprocess_status": "invalid",
-      "processing_action": "retain",
-      "reason": "timestamp is not ISO-8601; src_ip is invalid; src_port must be an integer in range 0..65535",
-      "flow_result": null
-    }
+```json
+{
+  "flow_result": null,
+  "preprocess_errors": [
+    "timestamp is not ISO-8601",
+    "src_ip is invalid",
+    "src_port must be an integer in range 0..65535"
+  ],
+  "preprocess_status": "invalid",
+  "processing_action": "retain",
+  "reason": "timestamp is not ISO-8601; src_ip is invalid; src_port must be an integer in range 0..65535"
+}
+```
 
 ### Phân tích
 
-Kết quả đạt yêu cầu. Event được giữ lại để log theo policy retain, nhưng
-không được đưa vào Flow Tracker vì endpoint không hợp lệ.
+Event malformed được đánh dấu invalid với lý do đầy đủ; FlowTracker từ chối tạo flow và không crash. Output thực tế trùng khớp hoàn toàn với expected.
+
+### Kết luận
+
+**PASS**, exit code `0`. Bằng chứng: [`run.log`](T14/run.log), [`actual.json`](T14/actual.json), [`exit_code.txt`](T14/exit_code.txt).
+
 
 ---
 
-## 3. Kiểm thử integration với PCAP
+## 5. Kiểm thử integration với PCAP
 
-Assignment 2 yêu cầu kiểm tra các module mới trong pipeline thật, không chỉ
-gọi từng class riêng lẻ. Các PCAP dưới đây được chạy qua main.py bằng chế độ
-offline capture.
+Các capture của Assignment 1 được chạy lại qua pipeline Parser → Decoder → Preprocessor → FlowTracker. Không lưu bản sao PCAP hoặc JSONL mới trong Assignment 2 để tránh dữ liệu dư.
 
-Lệnh mẫu:
+| Input | Packet events | Flow summaries | Exit code | Kết quả |
+|---|---:|---:|---:|---|
+| `dns_query` | 38 | 9 | 0 | PASS |
+| `dns_response` | 38 | 9 | 0 | PASS |
+| `http_get` | 43 | 4 | 0 | PASS |
+| `http_post` | 220 | 1 | 0 | PASS |
+| `http_response` | 43 | 4 | 0 | PASS |
+| `smtp_command` | 60 | 4 | 0 | PASS |
+| `smtp_response` | 60 | 4 | 0 | PASS |
+| `tcp_data` | 11 | 2 | 0 | PASS |
+| `tcp_handshake` | 11 | 2 | 0 | PASS |
+| `udp` | 314 | 5 | 0 | PASS |
+| `unknown` | 1 | 0 | 0 | PASS |
+| `malformed` | 0 | 0 | 1 | PASS (lỗi input có kiểm soát) |
 
-    .venv/bin/python main.py \
-        --pcap TEST/assignment1/http_get/input.pcap \
-        --output /tmp/http_get.jsonl \
-        --flow-output /tmp/http_get.flows.jsonl \
-        --overwrite
+## 6. Test bổ sung
 
-Trong bảng:
+Ngoài T01–T14, `tests/test_assignment2.py` còn kiểm tra thứ tự pipeline, flush cuối capture, tái sử dụng five-tuple sau reset, timestamp không theo thứ tự, TCP capture không đầy đủ, port lỗi, MIME encoding không hỗ trợ và giới hạn kích thước decode.
 
-- event output là số dòng trong JSONL packet event.
-- flow output là số dòng trong JSONL flow summary.
-- exit code 0 là chạy thành công.
-- malformed có exit code 1 vì input cố ý không phải capture hợp lệ; đây là
-  kết quả mong đợi.
+## 7. Kết luận
 
-| PCAP input | Input dùng | Output thực tế | Phân tích | Kết quả |
-|---|---|---|---|---|
-| TEST/assignment1/dns_query/input.pcap | 38 packet DNS query | 38 event, 9 flow, exit 0 | Parser, Decoder không làm hỏng DNS; Flow Tracker gom được UDP flow | PASS |
-| TEST/assignment1/dns_response/input.pcap | 38 packet DNS response | 38 event, 9 flow, exit 0 | DNS response đi qua pipeline và được xuất flow summary | PASS |
-| TEST/assignment1/http_get/input.pcap | HTTP GET capture | 43 event, 4 flow, exit 0 | HTTP parser tạo event; Decoder và Preprocessor chạy trong pipeline | PASS |
-| TEST/assignment1/http_post/input.pcap | HTTP POST capture có body | 220 event, 1 flow, exit 0 | HTTP body được đưa qua Decoder; flow output được tạo | PASS |
-| TEST/assignment1/http_response/input.pcap | HTTP response capture | 43 event, 4 flow, exit 0 | HTTP response vẫn tương thích với pipeline mới | PASS |
-| TEST/assignment1/smtp_command/input.pcap | SMTP command capture | 60 event, 4 flow, exit 0 | SMTP command được giữ nguyên; Decoder không decode mù command | PASS |
-| TEST/assignment1/smtp_response/input.pcap | SMTP response capture | 60 event, 4 flow, exit 0 | SMTP response chạy qua parser và flow tracker không lỗi | PASS |
-| TEST/assignment1/tcp_data/input.pcap | TCP có payload | 11 event, 2 flow, exit 0 | TCP packet có payload được đếm và gắn flow | PASS |
-| TEST/assignment1/tcp_handshake/input.pcap | TCP handshake/data capture | 11 event, 2 flow, exit 0 | Pipeline xử lý được SYN, SYN/ACK, ACK và packet tiếp theo | PASS |
-| TEST/assignment1/udp/input.pcapng | UDP capture | 314 event, 5 flow, exit 0 | UDP packet được parse, gom flow hai chiều và flush cuối PCAP | PASS |
-| TEST/assignment1/unknown/input.pcap | IPv4 protocol không hỗ trợ | 1 event, 0 flow, exit 0 | Event được giữ lại nhưng không tạo flow TCP/UDP | PASS |
-| TEST/assignment1/malformed/input.pcap | File capture cố ý không hợp lệ | 0 event, 0 flow, exit 1 | Chương trình báo lỗi có kiểm soát, không có unhandled traceback | PASS |
-
-Output packet và flow của mỗi lần chạy có dạng:
-
-    --output       JSONL chứa PacketEvent sau Parser, Decoder, Preprocessor và FlowTracker
-    --flow-output  JSONL chứa FlowInfo sau khi flow được đóng hoặc flush
-
-Kết quả cho thấy các stage Assignment 2 đã được gọi trong pipeline offline
-thật, không chỉ được kiểm thử bằng event giả lập.
-
-## 4. Kết luận
-
-| Nhóm | Kết quả |
-|---|---|
-| Decoder HTTP | Đạt |
-| Decoder SMTP/MIME | Đạt |
-| Character decoding và lỗi malformed | Đạt |
-| Preprocessor validation | Đạt |
-| Preprocessor normalization | Đạt |
-| TCP flow tracking | Đạt |
-| UDP flow tracking | Đạt |
-| Timeout và finalize | Đạt |
-| Flow statistics | Đạt |
-| T01–T14 | 14/14 PASS |
-| PCAP integration | 12/12 PASS |
-| Toàn bộ test project | 49 passed |
-
-Các test bổ sung trong tests/test_assignment2.py cũng chạy thành công, gồm
-integration pipeline, end-of-capture flush, five-tuple reuse, timestamp không
-theo thứ tự, TCP capture không đầy đủ, MIME encoding không hỗ trợ và decoder
-size limit.
+Decoder, Preprocessor và Flow/Connection Tracker đáp ứng toàn bộ T01–T14 của PDF. Lỗi decode/normalize/track được cô lập; timeout, size limit và policy đều cấu hình được. Bộ test có thể chạy lại tự động và toàn bộ output dùng để kết luận đều được lưu trong `TEST/assignment2`.

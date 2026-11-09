@@ -1,0 +1,6 @@
+{
+  "decoded_query": "q=' OR 1=1+literal",
+  "decoded_url": "/search?q=' OR 1=1+literal",
+  "decoder_status": "success",
+  "raw_url": "/search?q=%27%20OR%201%3D1+literal"
+}

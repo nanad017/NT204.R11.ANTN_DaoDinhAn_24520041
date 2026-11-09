@@ -1,0 +1,8 @@
+{
+  "app_proto": "HTTP",
+  "header_name": "Host",
+  "hostname": "Example.TEST.",
+  "proto": "tcp",
+  "timestamp": "2026-01-01T00:00:00Z",
+  "url": "/CaseSensitive/Path"
+}

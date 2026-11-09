@@ -1,0 +1,8 @@
+{
+  "base64": {
+    "mime_payload": "Content-Type: text/plain; charset=utf-8\r\nContent-Transfer-Encoding: base64\r\n\r\nSGVsbG8gV29ybGQh"
+  },
+  "quoted_printable": {
+    "mime_payload": "Content-Type: text/plain\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\nHello=20world!"
+  }
+}

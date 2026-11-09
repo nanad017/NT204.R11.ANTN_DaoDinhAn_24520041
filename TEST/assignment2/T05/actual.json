@@ -1,0 +1,18 @@
+{
+  "app_proto": "http",
+  "header_name": "host",
+  "hostname": "example.test",
+  "normalized_url": "/CaseSensitive/Path",
+  "original_header_name": "Host",
+  "original_values": {
+    "app_proto": "HTTP",
+    "http.header:Host": "Host",
+    "http.hostname": "Example.TEST.",
+    "proto": "tcp",
+    "timestamp": "2026-01-01T00:00:00Z"
+  },
+  "preprocess_status": "valid",
+  "proto": "TCP",
+  "timestamp": "2026-01-01T00:00:00+00:00",
+  "url": "/CaseSensitive/Path"
+}

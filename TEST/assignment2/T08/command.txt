@@ -1,0 +1,1 @@
+uv run --with scapy==2.7.0 --with pytest python -m pytest -q tests/test_assignment2.py::test_t08_bidirectional_packets_share_id_and_direction_is_stable

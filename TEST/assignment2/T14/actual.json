@@ -1,0 +1,11 @@
+{
+  "flow_result": null,
+  "preprocess_errors": [
+    "timestamp is not ISO-8601",
+    "src_ip is invalid",
+    "src_port must be an integer in range 0..65535"
+  ],
+  "preprocess_status": "invalid",
+  "processing_action": "retain",
+  "reason": "timestamp is not ISO-8601; src_ip is invalid; src_port must be an integer in range 0..65535"
+}

@@ -1,0 +1,11 @@
+{
+  "event": {
+    "dest_ip": "198.51.100.1",
+    "dest_port": 80,
+    "proto": "TCP",
+    "src_ip": "not-an-ip",
+    "src_port": 70000,
+    "timestamp": "not-a-timestamp"
+  },
+  "invalid_event_policy": "retain"
+}

@@ -1,0 +1,8 @@
+{
+  "active_after_close": 0,
+  "active_after_reset": 0,
+  "closed_flow_id": 1,
+  "closed_state": "CLOSED",
+  "reset_flow_id": 2,
+  "reset_state": "RESET"
+}

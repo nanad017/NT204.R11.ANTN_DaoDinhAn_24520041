@@ -1,0 +1,8 @@
+{
+  "decoded_body": "��",
+  "decoder_errors": [
+    "MIME character decoding: invalid character sequence"
+  ],
+  "decoder_status": "partial",
+  "email_decode_status": "partial"
+}

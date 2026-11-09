@@ -1,0 +1,20 @@
+{
+  "optional_missing": {
+    "dns": null,
+    "email": null,
+    "http": null,
+    "parser_errors": [],
+    "preprocess_status": "valid",
+    "smtp": null
+  },
+  "required_missing": {
+    "errors": [
+      "src_ip is required",
+      "dest_ip is required",
+      "transport protocol is missing"
+    ],
+    "processing_action": "retain",
+    "reason": "src_ip is required; dest_ip is required; transport protocol is missing",
+    "status": "invalid"
+  }
+}

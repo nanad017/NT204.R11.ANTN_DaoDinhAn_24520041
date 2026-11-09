@@ -1,0 +1,19 @@
+{
+  "packets": [
+    {"flags": ["SYN"], "packet_length": 60, "timestamp": "2026-01-01T00:00:00+00:00"},
+    {
+      "endpoints": {"dest_ip": "192.0.2.1", "dest_port": 50000, "src_ip": "198.51.100.1", "src_port": 80},
+      "flags": ["SYN", "ACK"],
+      "packet_length": 60,
+      "timestamp": "2026-01-01T00:00:01+00:00"
+    },
+    {"flags": ["ACK"], "packet_length": 52, "timestamp": "2026-01-01T00:00:02+00:00"},
+    {"flags": ["ACK", "PSH"], "packet_length": 100, "timestamp": "2026-01-01T00:00:03+00:00"},
+    {
+      "endpoints": {"dest_ip": "192.0.2.1", "dest_port": 50000, "src_ip": "198.51.100.1", "src_port": 80},
+      "flags": ["FIN", "ACK"],
+      "packet_length": 60,
+      "timestamp": "2026-01-01T00:00:05+00:00"
+    }
+  ]
+}

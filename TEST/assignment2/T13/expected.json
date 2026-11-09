@@ -1,0 +1,15 @@
+{
+  "ack_count": 4,
+  "backward_byte_count": 120,
+  "backward_packet_count": 2,
+  "byte_count": 332,
+  "duration": 5.0,
+  "established": true,
+  "fin_count": 1,
+  "forward_byte_count": 212,
+  "forward_packet_count": 3,
+  "packet_count": 5,
+  "rst_count": 0,
+  "state": "CLOSING",
+  "syn_count": 2
+}

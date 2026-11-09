@@ -1,0 +1,1 @@
+uv run --with scapy==2.7.0 --with pytest python -m pytest -q tests/test_assignment2.py::test_t05_normalization_is_consistent_and_does_not_lower_uri

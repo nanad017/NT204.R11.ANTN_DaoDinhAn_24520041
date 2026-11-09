@@ -1,0 +1,6 @@
+{
+  "expire_time": "2026-01-01T00:00:05+00:00",
+  "packet_time": "2026-01-01T00:00:00+00:00",
+  "tcp_idle_timeout": 5,
+  "udp_idle_timeout": 5
+}
